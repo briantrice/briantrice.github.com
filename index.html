@@ -1,3 +1,27 @@
-<h1>http://jonasboner.com</h1>
-<h2>http://github.com/jboner</h2>
+---
+layout: default
+title: Jonas Bonér
+---
+ 
+<div id="home">
+  <h1>Blog Posts</h1>
+  <ul class="posts">
+    {% for post in site.posts %}
+      <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endfor %}
+  </ul>
+  
+  <!--h1>Interviews, Talks, Etc</h1>
+  <ul class="posts">
+    <li><span>09 Oct 2008</span> &raquo; <a href="http://www.infoq.com/interviews/preston-werner-powerset-github-ruby">InfoQ: Tom Preston-Werner on Powerset, GitHub, Ruby and Erlang</a></li>
+  </ul-->
+  
+  <h1>Open Source Projects</h1>
+  <ul class="posts">
+    <li><a href="http://github.com/jboner/scala-otp/">Scala OTP</a></li>
+    <li><a href="http://aspectwerkz.codehaus.org">AspectWerkz AOP Runtime</a></li>
+    <li><a href="http://aspectj.org">AspectJ</a></li>
+    <li><a href="http://terracotta.org">Terracotta</a></li>
+  </ul>
+</div>
 
