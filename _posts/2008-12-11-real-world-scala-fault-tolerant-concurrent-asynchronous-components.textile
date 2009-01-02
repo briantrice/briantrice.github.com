@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Real-World Scala: Fault-tolerant Concurrent Asynchronous Components
+title: Real-World Scala - Fault-tolerant Concurrent Asynchronous Components
 ---
 
 h1. {{ page.title }}
