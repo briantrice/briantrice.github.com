@@ -16,9 +16,9 @@ Actors can simplify concurrent programming and reasoning immensely and I believe
 For example, if we want to be able to pass a single message from one actor to the next we have to define two things.
 
 A message with optional payload:
-<pre>
+{% highlight scala %}
 case class MyMessage(payload: AnyRef)
-</pre>
+{% endhighlight %}
 
 A message dispatch matching loop (partial function) in the receiving actor:
 {% highlight scala %}
@@ -48,7 +48,7 @@ Each so-called <em>Active Object</em> (concurrent asynchronous component) is a <
 
 Here is a simple example of a component that is using default supervisor management (which among other things mean that it is not part of a supervisor tree/hierarchy, but is still managed and will be restarted upon failure). We start with the component interface and implementation.
 
-<pre>
+{% highlight scala %}
   trait Foo {
     def foo(msg: String): String    
     @oneway def bar(msg: String)
@@ -58,27 +58,27 @@ Here is a simple example of a component that is using default supervisor managem
     def foo(msg: String): String = { println("foo: " + msg); msg } 
     def bar(msg: String) = println("bar: " + msg)
   }
-</pre>
+{% endhighlight %}
   
 Now let's instantiate this component. The integer 1000 specifies the time interval an (asynchronous) invocation should have before timing out. 
 
-<pre>
+{% highlight scala %}
   val foo = ActiveObject.newInstance[Foo](classOf[Foo], new FooImpl, 1000)
-</pre>
+{% endhighlight %}
   
 Now we can use this component as any regular instance of <code>Foo</code>. The difference is that invocations are now asynchronously dispatched in an event-based actor with its return value is wrapped in a <code>Future</code>, this emulates synchronous behavior but is non-blocking. The  exception to this behavior is if a method is annotated with the <code>@scala.actors.annotation.oneway</code> annotation, then it returns immediately. All components created through the factory are fault-tolerant <code>GenericServers</code> managed by a <code>Supervisor</code>, which means that they will be restarted upon failure using the restart scheme the supervisor has defined it under.
 
-<pre>
+{% highlight scala %}
    // use as usual
    foo.foo("foo")
    foo.bar("bar") // returns immediately since annotated with @oneway
-</pre>
+{% endhighlight %}
   
 Now, if I would like to have more control over the <code>Supervisor</code> configuration and/or want to compose different components into supervisor hierarchies, then we can use another factory method along with a method called <code>start</code> that allows us to pass in a <code>Supervisor</code> configuration (as defined by the Scala OTP Supervisor). 
 
 Let's take a look at a full example:
 
-<pre>
+{% highlight scala %}
   trait Foo {
     def foo(msg: String): String    
     @oneway def bar(msg: String)
@@ -97,18 +97,18 @@ Let's take a look at a full example:
   class BarImpl extends Bar {
     def bar(msg: String) = println("bar: " + msg)
   }
-</pre>
+{% endhighlight %}
   
 First create proxies (<code>GenericServer</code>s) for our services.
 
-<pre>
+{% highlight scala %}
   val fooProxy = new ActiveObjectProxy(new FooImpl, 1000)
   val barProxy = new ActiveObjectProxy(new BarImpl, 1000)
-</pre>
+{% endhighlight %}
 
 Then let's configure the <code>GenericServer</code>(s) by creating a list of <code>GenericServer</code> configurations (defining lifecycles, restart strategies etc.). This configuration is passed into the <code>ActiveObject.supervise</code> method which starts up the <code>Supervisor</code> which starts up all <code>GenericServer</code>'s according to their configurations before returning the <code>Supervisor</code> instance (which can be used for management of the components). 
 
-<pre>
+{% highlight scala %}
 val supervisor = 
   ActiveObject.supervise(
     RestartStrategy(AllForOne, 3, 100),
@@ -119,17 +119,17 @@ val supervisor =
       barProxy,
       LifeCycle(Permanent, 100))
     :: Nil)
-</pre>
+{% endhighlight %}
   
 Create and use the components as in the previous example.. 
 
-<pre>
+{% highlight scala %}
   val foo = ActiveObject.newInstance[Foo](classOf[Foo], fooProxy)
   val bar = ActiveObject.newInstance[Bar](classOf[Bar], barProxy)
 
   foo.foo("foo ") 
   bar.bar("bar ")
-</pre>
+{% endhighlight %}
   
 That pretty much sums it up. So how is this implemented?
 
@@ -137,14 +137,14 @@ That pretty much sums it up. So how is this implemented?
 
 The first thing we need to do is to define an invocation context, holding arguments, method to be invoked as well as the target instance.
 
-<pre>
+{% highlight scala %}
   case class Invocation(val method: Method, val args: Array[AnyRef], val target: AnyRef) {
     def invoke: AnyRef = method.invoke(target, args:_*)
     override def toString: String = "Invocation [method: " + method.getName + ", args: " + args + ", target: " + target + "]"
     override def hashCode(): Int = { ... }
     override def equals(that: Any): Boolean = { ... }
   }
-</pre>
+{% endhighlight %}
 
 The second thing we need to do is to create a dynamic proxy wrapping the asynchronous dispatch. This proxy holds an instance of an actor dressed up in a <code>GenericServer</code>.  Now comes the little trick; we will now use the <code>Invocation</code> context as the message to our <code>GenericServer</code> actor. 
 
@@ -152,7 +152,7 @@ As you can see in the code for the <code>dispatcher</code> we are defining a par
 
 The call flow for this proxy is as follows. When a regular synchronous method invocation is made on the service interface or component is redirected to the <code>invoke(..)</code> method.  In this method we simply create an invocation context for this specific method invocation and sends it as a message to our <code>GenericServer</code> (server). Here we have two options.  If the target method is annotated with the <code>@scala.actors.annotation.oneway</code> annotation then we fire the message and forget by invoking <code>server ! invocation</code>, else we are sending the message using the <code>server !!! invocation</code> operator which returns a <code>Future</code> which we then wait on (emulating a synchronous method call).
 
-<pre>
+{% highlight scala %}
 class ActiveObjectProxy(val target: AnyRef, val timeout: Int) extends InvocationHandler {
   private val oneway = classOf[scala.actors.annotation.oneway]
  
@@ -183,11 +183,11 @@ class ActiveObjectProxy(val target: AnyRef, val timeout: Int) extends Invocation
     }
   }
 }
-</pre>
+{% endhighlight %}
 
 Finally we create a factory which will do the <code>Supervisor</code> configuration, wiring and startup. 
 
-<pre>
+{% highlight scala %}
 object ActiveObject {
  
   def newInstance[T](intf: Class[T] forSome {type T}, target: AnyRef, timeout: Int): T = {
@@ -222,7 +222,7 @@ object ActiveObject {
         LifeCycle(Permanent, 100))
       :: Nil)
 }
- </pre>
+ {% endhighlight %}
 
 That's pretty much all there is to it. The code is available as part of the Scala OTP library: 
 
