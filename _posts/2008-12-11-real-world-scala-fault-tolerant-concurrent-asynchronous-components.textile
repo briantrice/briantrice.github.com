@@ -21,7 +21,7 @@ case class MyMessage(payload: AnyRef)
 </pre>
 
 A message dispatch matching loop (partial function) in the receiving actor:
-<pre>
+{% highlight scala %}
 def act = {
   loop {
     react {
@@ -32,7 +32,7 @@ def act = {
     }
   }
 }
-</pre>
+{% endhighlight %}
 
 It is also complicated to do things like stateful control flow, e.g. send message to A, wait for reply, then send message to B, wait for reply, then do C. (this can in some ways be addressed using <a href="http://lampsvn.epfl.ch/trac/scala/attachment/ticket/781/monadActor.scala">monad continuations</a>, but is still not simple and intuitive to use).  
 
