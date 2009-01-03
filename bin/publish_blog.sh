@@ -20,12 +20,13 @@ echo '===================================================='
 ncftp -u $FTP_USER -p $FTP_PASSWORD $FTP_SITE<<END_SCRIPT
 cd $FTP_SITE_DIR
 put -R .
+put -R ../../css
 quit
 
 echo '===================================================='
 echo 'Cleaning up'
-cd ..
-rm -rf $MIRROR
+#cd ..
+#rm -rf $MIRROR
 
 echo '===================================================='
 echo 'Site mirrored successfully'
