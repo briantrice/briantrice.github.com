@@ -1,9 +1,0 @@
---- 
-wordpress_id: 150
-layout: post
-title: Interview with Joe Armstrong on Erlang and more...
-wordpress_url: http://jonasboner.com/2007/10/30/interview-with-joe-armstrong-on-erlang-and-more/
----
-I had the pleasure of attending Joe Armstrong's fantastic presentation at <a href="http://jaoo.dk/">JAOO</a> some weeks ago. It was by far the best talk at the whole conference, both in terms of content and presentation. Joe showed deep knowledge in both hardware and software, good teaching skills all wrapped up in a dry twisted sense of British humor - Joe was incredibly funny, I sometimes felt like had attended a stand-up comedian show. 
-
-Anyway, for all of you that missed Joe's talk, <a href="http://channel9.msdn.com/ShowPost.aspx?PostID=351659#351659">here is a great interview</a> with him discussing Erlang's (and a functional programmer's) view of the world, the problem with OO, shared state concurrency and much more. Not as funny as the talk, but very interesting. 
