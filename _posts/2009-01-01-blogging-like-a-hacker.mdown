@@ -1,0 +1,10 @@
+---
+layout: post
+title: Blogging Like a Hacker
+---
+
+h1. {{ page.title }}
+
+p(meta). 1 Jan 2009 - Uppsala, Sweden
+
+First post using Jekyll and Git.

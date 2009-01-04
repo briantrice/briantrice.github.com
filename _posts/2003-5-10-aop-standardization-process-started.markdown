@@ -1,0 +1,17 @@
+--- 
+wordpress_id: 6
+layout: post
+title: AOP standardization process started
+wordpress_url: http://jonasboner.com/?p=6
+---
+<p/>
+Renaud Pawlak, the creator of <a href="http://jac.aopsys.com/">JAC</a> has started up a project called <a href="http://aopi.sourceforge.net">AOPI</a>, which has the goal of specifying a common set of components for aspect-oriented systems.
+<br/>
+From the homepage:
+<blockquote>
+AOPI are a standard specification of a set of useful or mandatory componants for aspect-oriented systems. 
+<p/>
+The idea is to have a common set of abstract components specifications, distributed under a Public Domain licence, that will help all the projets to communicate and reuse components coming from other projects. 
+</blockquote>
+This is a really good idea an I'm looking forward to some interesting discussions on the mailinglist. :-)
+<p/>

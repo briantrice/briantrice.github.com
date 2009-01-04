@@ -1,0 +1,29 @@
+--- 
+wordpress_id: 47
+layout: post
+title: HotSwap Is A Dead End Road
+wordpress_url: http://jonasboner.com/?p=47
+---
+There has been a lot of discussions about the need for more dynamicity in Java, including the need to support scripting languages.
+
+Most are around the suggestion of improving the HotSwap facility in Java. 
+
+For exampe: 
+
+* <a href="http://rifers.org/blogs/gbevin/2005/10/31/hotswap_improvement">How badly do you want Hotswap to improve?</a>
+
+* <a href="http://blogs.opensymphony.com/plightbo/2005/10/please_vote_the_only_jvm_bug_y.html">PLEASE VOTE: the only JVM bug you'll ever really care about</a>
+
+* <a href="http://blogs.opensymphony.com/plightbo/2005/10/gaining_traction_hotswap_impro.html">Gaining traction: HotSwap improvements</a>,  
+
+etc.
+
+I have to admit that a year ago I was probably one of the guys that were swearing the most over HotSwap's (and JVM(D/T)I's shortcomings when trying to stretch its (limited) boundries in AspectWerkz. 
+
+However, today I think that improving HotSwap and the APIs for bytecode instrumentation in general is a dead end road. It simply adds complexiety, memory overhead, performance overhead as well as introduces the multiple agents problem. 
+
+We need to raise the abstraction level and move away from bytecode instrumentation. There is a need for high level VM APIs similar to the one we have been working on in JRockit. For details on the problems with current approaches and how we solve this in a better way, read <a href="http://dev2dev.bea.com/pub/a/2005/08/jvm_aop_1.html">this article</a>.
+
+So, PLEASE, stop wasting time in discussing how to improve bytecode instrumentation (e.g. HotSwap, JVMTI etc.) and give us feedback on how to improve the high-level VM API in JRockit (the prototype is <a href="http://blogs.codehaus.org/people/avasseur/archives/001198_jrockit_powered_aop_prototype_available.html">already available</a>).
+
+When on the subject on supporting scripting languages in Java is think that <a href="http://blogs.sun.com/roller/page/gbracha?entry=invokedynamic">this proposal</a> for adding a <tt>invokedynamic</tt> bytecode instruction is a step in the right direction.

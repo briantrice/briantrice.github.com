@@ -1,0 +1,12 @@
+--- 
+wordpress_id: 100
+layout: post
+title: Interview
+wordpress_url: http://jonasboner.com/2006/04/04/interview/
+---
+JayWay just published their <a href="http://www.jayway.se/download/JayView10_2006.pdf">interview of me</a>. 
+
+Topics discussed: AOP (standardization, future, what is missing, real-world usage etc.) and transparent distributed clustering (DSO - Distributed Shared Objects).
+
+
+

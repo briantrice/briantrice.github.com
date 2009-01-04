@@ -1,0 +1,157 @@
+--- 
+wordpress_id: 14
+layout: post
+title: AOP for EJB made easy
+wordpress_url: http://jonasboner.com/?p=14
+---
+<p />
+Using the new 0.8 version of <a href="http://aspectwerkz.codehaus.org/index.html">AspectWerkz</a> it is now a breeze to instrument your Servlets, EJBs or WebServices at runtime. 
+<p />
+In this example I will show how you use AspectWerkz together with WebLogic Server. Please note that AspectWerkz is not in any way tied to WLS, it is a pure generic AOP solution that works equally good inside any application server.
+<p />
+Even though I am fed up with using tracing as a way of demonstrating AOP, this is exactly what I am going to do. This due to simplicity and to be able focus on the important areas. Like, how to get it to work.
+<p />
+So now I will instrument the examplesServer application in WLS which contains all interesting parts in J2EE: SLSB,  SFSB, CMP, BMP, MDB, Servlets, WebServices etc. 
+<p />
+First I write a simple XML definition file:
+            <p>
+<pre>
+&lt;!DOCTYPE aspectwerkz PUBLIC
+    "-//AspectWerkz//DTD 0.8//EN"
+    "http://aspectwerkz.codehaus.org/dtd/aspectwerkz_0_8.dtd"&gt;
+
+&lt;aspectwerkz id="samples"&gt;
+    &lt;advice-def name="log" class="examples.logging.LoggingAdvice" deployment-model="perJVM"/&gt;
+	
+    &lt;aspect name="testWLS"&gt;
+        &lt;pointcut-def name="allMethods" type="method" pattern="* examples..*+.*(..)"/&gt;
+ 
+        &lt;bind-advice pointcut="allMethods"&gt;
+            &lt;advice-ref name="log"/&gt;
+        &lt;/bind-advice&gt;
+    &lt;/aspect&gt;
+&lt;/aspectwerkz&gt;
+</pre>
+            </p>
+Here you can see that I define one advice that does the tracing, one pointcut matching all methods in the whole examples application and then I simply 'bind' the advice to the pointcut.
+<p />
+So now all I have to do is to start up the application server (in this case WLS) along with AspectWerkz. For this I have many options. First I can post-process my class files before deployment using the <tt>aspectwerkz -offline ...</tt> compiler. Second there are some more interesting 'online' alternatives. For all the 'online' options see the <a href="http://aspectwerkz.codehaus.org/online.html#Overview">AspectWerkz documentation</a>.
+<p />
+For simplicity I am using the command line tool <tt>bin/aspectwerkz</tt>  which is a unification of the HotSwap and the Transparent bootclasspath options (see the documention for details). This tool autodetects the version of the JVM I am using and is chosing the best option for me.
+<p />
+So what I have to do is to alter the startup script for WLS a little bit. You have to alter the last part in the script:
+<pre>
+"%JAVA_HOME%\bin\java" %JAVA_VM% %MEM_ARGS% %JAVA_OPTIONS% 
+	-Dweblogic.Name=%SERVER_NAME% -Dweblogic.ProductionModeEnabled=%PRODUCTION_MODE% 
+	-Djava.security.policy="%WL_HOME%\server\lib\weblogic.policy" weblogic.Server 
+</pre>
+So it looks like this:
+<pre>
+set ASPECTWERKZ_HOME=C:\src\aspectwerkz
+set AW_OPT=-Daspectwerkz.definition.file=C:\bea\weblogic81\mydomain\aspectwerkz.xml
+
+%ASPECTWERKZ_HOME%\bin\aspectwerkz %JAVA_VM% %MEM_ARGS% %JAVA_OPTIONS% %AW_OPT% 
+	-Dweblogic.Name=%SERVER_NAME% -Dweblogic.ProductionModeEnabled=%PRODUCTION_MODE% 
+	-Djava.security.policy="%WL_HOME%\server\lib\weblogic.policy" weblogic.Server 
+</pre>
+
+As you can see here I am simply setting the <tt>ASPECTWERKZ_HOME</tt>, passing the definition file to the JVM using the <tt>-Daspectwerkz.definition.file</tt> JVM option and then replacing the regular call to <tt>%JAVA_HOME%\bin\java</tt> with the call to <tt>%ASPECTWERKZ_HOME%\bin\aspectwerkz</tt>.
+<p />
+So now all we have to do is to start up the server and run the examples. 
+Running, for example, the CMP example produces the folllowing output (as you can see AspectWerkz has no problem with the ejbc generated stubs):
+<p />
+<pre>
+...
+--> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1_HomeImpl_WLSkel::invoke
+  --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1_HomeImpl::create
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_initialize
+      --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_initialize
+        --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_initialize_persistent
+        < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_initialize_persistent
+      <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_initialize
+    <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_initialize
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setEntityContext
+      --> examples.ejb20.basic.containerManaged.AccountBean::setEntityContext
+        --> examples.ejb20.basic.containerManaged.AccountBean::id
+        < -- examples.ejb20.basic.containerManaged.AccountBean::id
+        --> examples.ejb20.basic.containerManaged.AccountBean::log
+setEntityContext called (12773520, PK = nullctx)
+        < -- examples.ejb20.basic.containerManaged.AccountBean::log
+      <-- examples.ejb20.basic.containerManaged.AccountBean::setEntityContext
+    <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setEntityContext
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setEJBContext
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setEJBContext
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setup
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setup
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setBusy
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setBusy
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::ejbCreate
+      --> examples.ejb20.basic.containerManaged.AccountBean::ejbCreate
+        --> examples.ejb20.basic.containerManaged.AccountBean::log
+AccountBean.ejbCreate( id = 12773520, PK = 10020, initial balance = $ 3000.0)
+        < -- examples.ejb20.basic.containerManaged.AccountBean::log
+        --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setAccountId
+        < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setAccountId
+        --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setBalance
+        < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setBalance
+        --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setAccountType
+        < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::setAccountType
+      <-- examples.ejb20.basic.containerManaged.AccountBean::ejbCreate
+      --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::pkCheck
+      < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::pkCheck
+      --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getPrimaryKey
+      < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getPrimaryKey
+    <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::ejbCreate
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getEJBContext
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getEJBContext
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setLoadUser
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setLoadUser
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::ejbPostCreate
+      --> examples.ejb20.basic.containerManaged.AccountBean::ejbPostCreate
+        --> examples.ejb20.basic.containerManaged.AccountBean::id
+          --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+          < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+          --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+          < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+        <-- examples.ejb20.basic.containerManaged.AccountBean::id
+        --> examples.ejb20.basic.containerManaged.AccountBean::log
+AccountBean.ejbPostCreate (12773520, PK = 10020)
+        < -- examples.ejb20.basic.containerManaged.AccountBean::log
+      <-- examples.ejb20.basic.containerManaged.AccountBean::ejbPostCreate
+      --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_create
+        --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setBeanParamsForCreateArray
+        < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setBeanParamsForCreateArray
+      <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_create
+    <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::ejbPostCreate
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setBusy
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setBusy
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::ejbStore
+      --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_store
+        --> examples.ejb20.basic.containerManaged.AccountBean::ejbStore
+          --> examples.ejb20.basic.containerManaged.AccountBean::id
+            --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+            < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+            --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+            < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+          <-- examples.ejb20.basic.containerManaged.AccountBean::id
+          --> examples.ejb20.basic.containerManaged.AccountBean::log
+AccountBean.ejbStore (12773520, PK = 10020)
+          < -- examples.ejb20.basic.containerManaged.AccountBean::log
+        <-- examples.ejb20.basic.containerManaged.AccountBean::ejbStore
+        --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+        < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_getMethodState
+      <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_store
+    <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::ejbStore
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_isBusy
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_isBusy
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setLoadUser
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_setLoadUser
+    --> examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_isCreatorOfTx
+    < -- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1__WebLogic_CMP_RDBMS::__WL_isCreatorOfTx
+  <-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1_HomeImpl::create
+<-- examples.ejb20.basic.containerManaged.containerManaged_9ufdc1_HomeImpl_WLSkel::invoke
+...
+</pre>
+<p>
+You can find the AspectWerkz 0.8 distribution <a href="http://aspectwerkz.codehaus.org/releases.html">here</a>.
+</p></pre>

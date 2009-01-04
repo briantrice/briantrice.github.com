@@ -1,0 +1,114 @@
+--- 
+wordpress_id: 11
+layout: post
+title: AspectWerkz ruthlessly refactored
+wordpress_url: http://jonasboner.com/?p=11
+---
+After two weeks of Ruthless Refactoring (TM) I can now announce that AspectWerkz version 0.6.3 has been released.
+<p/>
+I have among other things rewritten the whole definition and weave model implementation to support a much more powerful join point model. The join point model now have the essence of the AspectJ model. 
+
+<p/>
+Here are some of the features/changes:
+                    <ul>
+                        <li>
+                            Completely new definition model. Aspects, advices,
+                            introductions and pointcuts are now completely orthogonal
+                            and the model now has the essence of the AspectJ model.
+                            See the documentation for details.
+                        </li>
+                        <li>
+                            Abstract aspects definitions as well as pointcut expressions
+                            (e.g.
+                            <code>((pc1 OR pc2) AND !pc3)</code> and similar).
+                        </li>
+                        <li>
+                            Multiple weave models.
+                        </li>
+                        <li>
+                            Multiple AspectWerkz system can run in the same JVM concurrently.
+                        </li>
+                        <li>
+                            setField and getField now works for get and set java.util.*
+                            collection fields (e.g. add/get/remove/size and so on).
+                        </li>
+                        <li>
+                            Advice and introduction container is now pluggable. I.e. the
+                            user can provide its own custom implementation (f.e. to enable
+                            persistence).
+                        </li>
+                        <li>
+                            The transparent persistence of advices and introductions have
+                            been moved to the sandbox.
+                        </li>
+                        <li>
+                            Many bug fixes.
+                        </li>
+                    </ul>
+
+Here is an example of the new definition:
+<pre>
+&lt;aspectwerkz&gt;
+    &lt;!-- ============================================= --&gt;
+    &lt;!--  Define the advices                           --&gt;
+    &lt;!-- ============================================= --&gt;
+    &lt;advice-def name="log"
+                advice="advices.LoggingAdvice"
+                deployment-model="perInstance"/&gt;
+
+    &lt;advice-def name="cache"
+                advice="advices.CachingAdvice"
+                deployment-model="perClass"/&gt;
+
+    &lt;advice-def name="persistent"
+                advice="advices.PersistenceAdvice"
+                deployment-model="perJVM"/&gt;
+
+    &lt;advices-def name="log_and_cache"&gt;
+        &lt;advice-ref name="log"/&gt;
+        &lt;advice-ref name="cache"/&gt;
+    &lt;/advices-def&gt;
+
+    &lt;!-- ============================================= --&gt;
+    &lt;!--  Define the introductions                     --&gt;
+    &lt;!-- ============================================= --&gt;
+    &lt;introduction-def name="serializable"
+                      interface="java.io.Serializable"/&gt;
+
+    &lt;introduction-def name="mixin"
+                      interface="mixins.Mixin"
+                      implementation="mixins.MixinImpl"
+                      deployment-model="perInstance"/&gt;
+
+    &lt;!-- ============================================= --&gt;
+    &lt;!--  Define the abstract aspects                  --&gt;
+    &lt;!-- ============================================= --&gt;
+    &lt;abstract-aspect name="MyAbstractAspect"&gt;
+        &lt;advice pointcut="setters AND !getters"&gt;
+            &lt;advices-ref name="log_and_cache"/&gt;
+        &lt;/advice&gt;
+
+        &lt;advice pointcut="persistentFields"&gt;
+            &lt;advice-ref name="persistent"/&gt;
+        &lt;/advice&gt;
+    &lt;/aspect&gt;
+
+    &lt;!-- ============================================= --&gt;
+    &lt;!--  Define the aspects                           --&gt;
+    &lt;!-- ============================================= --&gt;
+    &lt;aspect name="MyAspect" extends="MyAbstractAspect"&gt;
+        &lt;introduction class="domain.*"&gt;
+            &lt;introduction-ref name="serializable"/&gt;
+            &lt;introduction-ref name="mixin"/&gt;
+        &lt;/introduction&gt;
+
+        &lt;pointcut-def name="setters" type="method" pattern="String domain.*.set*(..)"/&gt;
+        &lt;pointcut-def name="getters" type="method" pattern="String domain.*.get*(..)"/&gt;
+        &lt;pointcut-def name="persistentFields" type="setField" pattern="* domain.*.*"&gt;
+    &lt;/aspect&gt;
+&lt;/aspectwerkz&gt;
+</pre>
+You can download the new release from the <a href="http://aspectwerkz.codehaus.org/releases.html">releases page</a>
+<p/>
+Enjoy.
+<p/>

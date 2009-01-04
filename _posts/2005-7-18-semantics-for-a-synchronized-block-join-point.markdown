@@ -1,0 +1,116 @@
+--- 
+wordpress_id: 38
+layout: post
+title: Semantics for a Synchronized Block Join Point
+excerpt: |-
+  As I mentioned in my previous blog entry, the <code>synchronized</code> block is currently not a supported join point in AspectJ 5 (or in any other AOP framework):
+  
+  <blockquote>
+  Currently you can for example pick out a call to a method that is declared as being synchronized and you can pick out calls to Thread:: notify()/notifyAll()/wait(). Meaning that being able to pick out synchronized blocks are the only missing piece left in order to completely control thread management and locking in Java. The actual bytecode modifications needed to make this work would be fairly simple, but capturing the correct semantics in a good language design would probably be a lot trickier.
+  </blockquote>
+  
+  <p>
+  Well, I'm not a language designer, but I think the problem is interesting so I will spend some time discussing it anyway.
+  </p>
+wordpress_url: http://jonasboner.com/?p=38
+---
+As I mentioned in my previous blog entry, the <tt>synchronized</tt> block is currently not a supported join point in AspectJ 5 (or in any other AOP framework):
+
+<blockquote>
+Currently you can for example pick out a call to a method that is declared as being synchronized and you can pick out calls to Thread:: notify()/notifyAll()/wait(). Meaning that being able to pick out synchronized blocks are the only missing piece left in order to completely control thread management and locking in Java. The actual bytecode modifications needed to make this work would be fairly simple, but capturing the correct semantics in a good language design would probably be a lot trickier.
+</blockquote>
+
+Well, I'm not a language designer, but I think the problem is interesting so I will spend some time discussing it anyway.
+
+In bytecode, a synchronized block is represented as a MONITOR ENTRY and a MONITOR EXIT bytecode instruction pair (however these are not required to be paired).  The first natural approach would to let these two bytecode instructions be join points and treat them similar to field access and modification (PUTFIELD and GETFIELD bytecode instructions), meaning simply pick out (and intercept) this single bytecode instruction.  
+
+Just to clarify what I mean, here is an example of how the syntax for the above given semantics could look in the AspectJ pointcut expression language:
+<code lang="java">
+lock(Type t) && withincode(* Foo.bar(..)) && args(t)
+
+unlock(Type t) && withincode(* Foo.bar(..)) && args(t)
+</code>
+
+Let us take a look at a synchronized block and how it would be affected:
+<code lang="java">
+synchronized(obj) {
+    // body
+}
+</code>
+
+In bytecode to this is equivalent to (pseudo code):
+<code lang="java">
+MONITOR ENTRY // lock on obj
+    // body
+MONITOR EXIT
+</code>
+
+If we now add around advices to these join points then we could for example get (pseude code):
+<code lang="java">
+try {
+    // a call to the around advice, which calls the lock manager
+    aroundAdvice1(obj) --> myLockManager.acquire(obj); 
+
+    // body
+
+} finally {
+    aroundAdvice2(obj) --> myLockManager.release(obj);
+}
+</code>
+
+This approach would give you the possibility to completely control how locking is done in Java (including the possibility of enhancing or completely screw up the Java Memory Model (JMM)). On the other hand it does not allow you to pick out the actual code block that is synchronized (is this something that we want?) .  Therefore this approach is perhaps not intuitive, since in Java source code, what we see is not lock acquisition and release but a code block that is guaranteed to be synchronized. So now let's try to approach this problem from the perspective of source code.
+
+Since AspectJ (and AspectWerkz) already has limited support for the synchronized keyword by allowing calls to methods declared as being synchronized to be matched, let us take a look at the semantics for this join point.  
+
+Here's a simple method that is defined as being synchronized:
+<code lang="java">
+public synchronized void doStuff() { 
+    // body
+}
+</code>
+
+What this actually means is:
+<code lang="java">
+public void doStuff() { 
+    synchronized(this) {
+        // body
+    }
+}
+</code>
+
+The options we have of picking up this synchronized code block (wrapped up in the doStuff() method) is by using a <pre>execution(synchronized void *.doStuff())</pre> or <pre>call(synchronized void *.doStuff())</pre> pointcut.
+
+Using the execution pointcut, the above method body would be transformed to (pseudo code):
+<code lang="java">
+synchronized(this) {
+    // the advice has option of invoking the original body
+    myAroundAdvice(this) 
+}
+</code>
+
+I.e. only synchronized body is matched and intercepted.
+
+If we are using the call pointcut, the same code snippet would be transformed to (pseudo code):
+<code lang="java">
+...
+// the advice has the option of invoking the original synchronized block
+myAroundAdvice(this) 
+...
+</code>
+
+I.e. the whole synchronized block, including the locking is matched (and intercepted). (This is conceptionally true, in regards to the locking, which is easy to see if you think of the doStuff() method as being inlined.)
+
+I will not go into much detail about how these semantic differences should be expressed in the pointcut language here (this post is too long already). But for example, the last discussion would require the possibility of making a distinction between picking out a code block <tt>inclusively</tt> and <tt>exclusively</tt> (i.e. picking out the whole code block, or just the body of the code block), which could be expressed something like this:
+<code lang="java">
+// pick out synchronized block including the locking
+block-inclusive(synchronized(Type t)) && withincode(* Foo.bar(..)) && args(t)
+
+// pick out only the synchronized block's body, not the locking
+block-exclusive(synchronized(Type t)) && withincode(* Foo.bar(..)) && args(t) 
+</code>
+
+(These "block" pointcut descriptors can of course be used in any kind of block, loops, conditional statements etc., if/whenever they are supported in AspectJ.)
+
+To sum up, the questions are: Do we want the power of intercepting the whole locking mechanism (but not the synchronized body), or is it better to follow the semantics we have for a synchronized method? Which approach addresses the use cases we want?  Is the most intuitive?  Is more orthogonal? 
+
+Thoughts?  Comments?  Ideas?

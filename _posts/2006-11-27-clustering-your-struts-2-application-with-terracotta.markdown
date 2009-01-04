@@ -1,0 +1,17 @@
+--- 
+wordpress_id: 124
+layout: post
+title: Clustering Your Struts 2 Application With Terracotta
+excerpt: |-
+  Don Brown (Struts 2 lead) and I are doing a live webinar on clustering Apache Struts 2 with Terracotta. We will discuss how to build stateful Struts 2 applications that scales like stateless ones and varying solutions to clustering Struts when running enterprise applications.
+  
+  Wednesday, November 29, 2006 8:00 am Pacific Daylight Time.
+  
+  <a href="https://terracottat.webex.com/ec0507l/eventcenter/event/eventAction.do?siteurl=terracottat&theAction=detail&confViewID=277584840&path=edit_sucessful&eventBackUrl=scheduler&elq=FC611C350E3F40A9AAB5625F70DF0120">Enroll here to attend.</a>
+wordpress_url: http://jonasboner.com/2006/11/27/clustering-your-struts-2-application-with-terracotta/
+---
+Don Brown (Struts 2 lead) and I are doing a live webinar on clustering Apache Struts 2 with Terracotta. We will discuss how to build stateful Struts 2 applications that scales like stateless ones and varying solutions to clustering Struts when running enterprise applications.
+
+Wednesday, November 29, 2006 8:00 am Pacific Daylight Time.
+
+<a href="https://terracottat.webex.com/ec0507l/eventcenter/event/eventAction.do?siteurl=terracottat&theAction=detail&confViewID=277584840&path=edit_sucessful&eventBackUrl=scheduler&elq=FC611C350E3F40A9AAB5625F70DF0120">Enroll here to attend.</a>

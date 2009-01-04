@@ -1,0 +1,13 @@
+--- 
+wordpress_id: 34
+layout: post
+title: JRockit 5 Memory Leak Tool
+wordpress_url: http://jonasboner.com/?p=34
+---
+The upcoming release of JRockit will contain a new, completely killing, tool for memory leak detection.
+
+It allows you to (among many other things) to profile an application running in production with (almost) zero overhead (without shutting it down or any preparation whatsoever).
+
+<a href="http://jboss.org/jbossBlog/blog/bburke/?permalink=7EBA719FA8D7C246482F5E30A5DEDFB1.txt">Bill Burke</a> and <a href="http://www.almaer.com/blog/archives/000833.html">Dion Almaer</a> has already blogged about it.
+
+Go and check it out. It is free (shipped with JRockit).

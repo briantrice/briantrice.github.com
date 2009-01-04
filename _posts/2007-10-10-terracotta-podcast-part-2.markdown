@@ -1,0 +1,13 @@
+--- 
+wordpress_id: 148
+layout: post
+title: "Interviewed by Xebia: Part 2"
+wordpress_url: http://jonasboner.com/2007/10/10/terracotta-podcast-part-2/
+---
+The second half of an interview that Xebia did with me some months ago have been published.
+
+In this half which we discuss <a href="http://terracotta.org">Terracotta</a> in more detail, covering Network-Attached Memory and JVM-level clustering in depth (some stuff that we cover is slightly outdated, but most of it still holds). 
+
+You can find it <a href="http://podcast.xebia.com/Xebia_Audio_and_Video_Podcast/Entries/2007/10/10_Episode_13_-_Terracotta_Part_2.html">here</a>.
+
+If you missed the first part you can read more it <a href="http://jonasboner.com/2007/09/18/terracotta-podcast-part-1/">here</a> (which gives more of an overview).

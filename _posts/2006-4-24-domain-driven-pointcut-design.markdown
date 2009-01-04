@@ -1,0 +1,181 @@
+--- 
+wordpress_id: 106
+layout: post
+title: Domain-Driven Pointcut Design
+wordpress_url: http://jonasboner.com/2006/04/24/domain-driven-pointcut-design/
+---
+<h2>What is a pointcut language?
+</h2>
+
+Let's start with some terminology and definitions. A <em>pointcut language</em> can be seen as a <a href="http://en.wikipedia.org/wiki/Domain_Specific_Language">Domain Specific Language</a> (DSL) for defining <em>pointcuts</em>. A <em>pointcut</em> is defined as the set of <em>join points</em> - a <em>pointcut</em> picks out <em>join points</em>, in which a <em>jointpoint</em> is defined as a well-defined point in the program flow. 
+
+Sounds complicated? It's actually pretty simple.  
+
+Let's try a little example. You have an instance of a class <code>Foo</code> and an instance of a class <code>Bar</code>. The class <code>Bar</code> has a method with the signature <code>void setFoo(Foo foo)</code> and the class <code>Foo</code> has some other method that is invoking this method in <code>Bar</code>. E.g. something like this:
+<pre>
+class Bar {
+  Foo foo;
+  void setFoo(Foo f) {
+    foo = f;    
+  }
+}
+</pre>
+
+<pre>
+class Foo {
+  Bar bar = new Bar();
+  
+  void doStuff() {
+    bar.setFoo(this); // this is a join point 
+  }
+}
+</pre>
+
+Then the point where <code>setFoo(..)</code> is invoked from the class <code>Foo</code> is a well defined point, e.g. a <em>join point</em>. 
+
+If we now want to pick out this point in order to do something with it (apply an advice or interceptor to it or something else), then we can create a <em>pointcut</em> using a <em>pointcut language</em>. In this particular case we could create a <em>pointcut</em> defined like this:
+
+<pre>
+call(void Bar.setFoo(Foo))
+</pre>
+
+Now we have created a <em>pointcut</em> (AspectJ style), since we have a construct that picks out <em>join points</em>. The only oddity here is that it only picks out one single <em>join point</em>. 
+
+Since just working with one <em>join point</em> at time is fairly useless, we need an expressive way of picking out and managing 'sets' of <em>join points</em>.
+
+Luckily, most <em>pointcut languages</em> supports using patterns to write more expressive, generic or specific, <em>pointcut</em> expressions.
+
+For example, you can use patterns to pick out the call to any method that starts with <em>set</em> in <code>Bar</code> using this <em>pointcut</em>:
+<pre>
+call(* Bar.set*(..))
+</pre>
+
+In this <em>pointcut</em> we do not care about the parameters to the method, the return type or its name more than it should start with set. 
+
+Generally, <em>pointcut languages</em> have two families of patterns (mini-languages):
+
+<ul>
+	<li>Signature patterns - matches signatures (method, field etc.)
+        </li> 
+
+	<li>Type patterns - matches types
+        </li> 
+</ul>
+
+(For a more detailed description of the patterns and semantics that the AspectJ pointcut language supports, see the <a href="http://www.eclipse.org/aspectj/doc/released/progguide/semantics-pointcuts.html#matching">AspectJ documentation.</a>)
+
+<h2>The problems with using signature patterns in pointcuts</h2>
+
+A pointcut can be seen as an <em>implicit contract</em> between the target code and the artifact that is using the <em>pointcut</em> (could be an aspect or an interceptor). 
+
+One problem with using patterns like this is that we are basing the implicit contract on implementation details, details are likely to change during the lifetime of the application.  This is becoming an even bigger problem with the popularity of agile software development methodologies (like XP, Scrum, TDD etc.), with a high focus on refactoring and responsiveness to customer ever-changing requirements. 
+
+Another problem is that the use of patterns effectively removes all strong typing (can be helped with good tools like <em>AJDT</em>, but that will tie you to a specific working environment). 
+
+As a rule of thumb: 
+<strong>Your application's implementation details will change and you should therefore, as much as possible try to avoid basing implicit contracts, e.g. your pointcuts, upon them.
+</strong>
+
+So what can we do about it?
+
+<h2>Metadata to the rescue?</h2>
+
+When I write metadata I mean data about the target artifact, data that describes the characteristics of the artifact. 
+
+<a href="http://www.libraries.psu.edu/tas/jca/ccda/tf-meta3.html">Here is a decent definition</a> of metadata:
+<blockquote>Metadata are structured, encoded data that describe characteristics of information-bearing entities to aid in the identification, discovery, assessment, and management of the described entities.
+</blockquote>
+
+Note: when I write metadata I do not mean any specific kind of metadata, it can be declared in code, text file, XML, some meta model etc. But to be more specific, let's look at Java 5 annotations.
+
+Since metadata is raising the abstraction level over implementation details, but still captures its characteristics, it seems to be very suitable for helping us addres the issues with <em>signature based patterns</em> discussed above.
+
+So, all this sounds promising, but as we will see later, you have to be aware of that not all metadata will help here and you have to define it with care. 
+
+Ramnivas Laddad has written an <a href="http://www-128.ibm.com/developerworks/java/library/j-aopwork4/">interesting article</a> on metadata and pointcuts, where he views metadata as being <em>multi-dimensional signatures</em>. For example (from the article), a method with the following signature suffers from <em>signature-tangling</em>:
+
+<pre>
+public void transactional_authorized_credit(float amount);
+</pre>
+
+This method's signature is tangled since it is trying to capture all its roles in it's signature, e.g. name. In this case the use of metadata can help to untangle this signature by defining the method like this:
+
+<pre>
+@Transactional 
+@Authorized
+public void credit(float amount);
+</pre>
+
+This is definitely an improvement and the benefits are clear; more stable contract, more readable code, opens up for potential use of the metadata by tools etc. But the problem is that it doesn't really raise the abstraction level, we still have strong implicit coupling, and the annotations suffers from the <em>@AdviseMeHere</em> <a href="http://c2.com/cgi/wiki?CodeSmell">Code Smell</a>. I think the main problem is that we are still relying on implementation details, since we have merely restructured the signature. 
+
+He then continues with a discussion on the increased coupling, and suggests using more generic annotations that can be consumed by many different tools. For example that you should prefer using annotations like <code>@ReadOperation</code> rather than <code>@ReadLock</code> etc., which I think is an example of a step in the right direction. 
+
+The way I see it: 
+<strong>If an artifact F is annotated with an annotation A, then A should only describe characteristics (behaviour, role, responsibilities or properties) that F had before A was added to F</strong>.
+
+In other words, you should try to avoid using annotations that implies explicit changes of the characteristics of the annotated artifact. 
+
+This raises the questions like, if for example the use of an <code>@Transactional</code> annotation (or <code>@TransactionAttribute</code> in EJB 3) is a bad idea? Well, yes (and no). 
+
+Generally speaking I do consider any annotation that have an <em>Advise-Me-With-Feature-X</em> kind of flavor, a code smell. However, I do think there is a place for these kind of annotations in well-defined and constrained environments, such as containers and frameworks - as well as when you think it works for you, stay pragmatic... :-). 
+
+I do believe that metadata still can help us, but the questions are: What is the proper abstraction level? How to make it work in reality?
+
+<h2>Metadata and Ubiquitous Languages</h2>
+
+I am a big fan of <a href="http://www.domaindrivendesign.org/book/index.html"><em>Domain-Driven Design</em></a> (and Eric Evans book with the same name). One of the key building blocks in <em>Domain-Driven Design</em> is the <em>Ubiquitous Language</em>, and I have found that basing metadata abstractions on a <em>Ubiquitous Language</em> can get us a long way. More about how and why in a minute, but first, some people might be wondering what a <em>Ubiquitous Languages</em> is? Eric Evans <a href="http://domaindrivendesign.org/discussion/messageboardarchive/UbiquitousLanguage.html">defines it like this</a>:
+
+<blockquote>
+Definition: A language structured around the domain model and used by all team members to connect all the activities of the team with the software.
+
+Problem:
+A project faces serious problems when its language is fractured. Domain experts use their jargon while technical team members have their own language tuned for discussing the domain in terms of design.
+
+The terminology of day-to-day discussions is disconnected from the terminology embedded in the code (ultimately the most important product of the software project). And even the same person uses different language in speech and in writing, so that the most incisive impression of the domain often emerges in a transient form that is never captured in the code or even in writing.
+
+Translation blunts communication and makes knowledge crunching anemic.
+
+Yet none of these dialects can be a common language because none serves all needs.
+
+Solution:
+Use the model as a backbone of a language. Commit the team to exercising that language relentlessly in all communication within the team and in the code. Use the same language in diagrams, writing and especially speech.
+
+Iron out difficulties by experimenting with alternative expressions, which reflect alternative models. Then refactor the code, renaming classes, methods and modules to conform to the new model. Resolve confusion over terms in conversaion, in just the way we come to agree on the meaning of ordinary words.</blockquote>
+
+The <em>Ubiquitous Languages</em> is not only usable in the <em>domain layer</em>, but can, as Jimmy Nilsson has <a href="http://www.jnsk.se/weblog/posts/ulreflections.htm">pointed out</a>, be very useful in the <em>service layer</em> or in <em>DSLs</em>.
+
+I have found that using the <em>Ubiquitous Language</em> is equally important when defining metadata. Metadata should be a first class citizen in <em>the model</em> and therefore has to be part of the <em>Ubiquitous Language</em>. This is something that is very useful by itself, but becomes even more important in the context of <em>pointcut languages</em>.
+
+<h2>Bringing it all together: Domain-Driven Pointcut Design</h2>
+
+So what is <em>Domain-Driven Pointcut Design</em> (more than a fancy name for a thing that can be seen as common sense, that you can make yet another buzzword-like acronym out of)? Simply a way of designing <em>pointcuts</em> that are anchored in <em>the model</em> and that are more resilient to change. 
+
+My proposal is that you should try as much as possible to to avoid the use of patterns and <em>signature based pointcuts</em>. What this means in practice is that you need to use match-all signature patterns (since we still have to define a pattern for signatures in the <em>AspectJ pointcut language</em>), e.g. <code>'* *.*(..)'</code> for method signatures or <code>'* *.*'</code> for field signatures etc. You should then instead try to constrain the <em>pointcut language</em> you are using to three different matching constructs:
+
+<ul>
+	<li><strong>Types</strong> - only fully qualified names, names that are part of the <em>Ubiquitous Language</em> your team is using. 
+
+For example, <code>within(com.biz.domain.Account)</code> or <code>target(com.biz.domain.Customer)</code> (<em>AspectJ</em> allows you to use regular Java imports, so you can write <code>within(Account)</code> etc.). 
+</li>
+
+	<li><strong>Metadata</strong> - only annotations that are part of the <em>Ubiquitous Language</em> your team is using.</li> 
+
+For example, <code>call(@AccountStateChange * *.*(..))</code>, <code>execution(@Idempotent * *.(..))</code>, <code>@annotation(BillingOperation)</code>, <code>@this(DomainObject)</code> or whatever makes sense in your model. 
+
+	<li><strong>Package patterns</strong> - should be used only for narrowing down scope. 
+
+For example <code>within(com.biz..)</code> etc. This means that <code>within(com.biz..)</code> is ok, but not <code>within(com.*.foo.FooBar)</code>, <code>within(com.biz.Foo*)</code> or <code>within(com.biz.*Bar)</code></li>
+
+</ul>
+  
+If you manage to implement this correctly, in your team as well as in your code, then you have a high chance of being able to <strong>define extremely stable pointcuts that are a natural part of the model that both the developers and the domain experts (customers) can understand and reason about</strong>.
+
+Finally, I do not and believe that <em>signature based pointcuts</em> are useless, should be banned or anything. You should of course still use <em>signature based pointcuts</em> when they are the best tool for the job, and when based upon standardized interfaces, classes or annotations then they can be just as stable and communicative.
+
+Be pragmatic.
+
+<h2>Afterword</h2>
+
+This has not been a rant about the <em>AspectJ</em> pointcut langauge, which is in fact the most elegant, concise and coherent <em>DSL</em> I have ever worked with. But an attempt of showing a way of using it, in the context of <em>Domain-Driven Design</em>, that I have found useful and that addresses some of the problems with staying in sync with the model and the rest of the code throughout the lifetime of the application. 
+
+<strong>Update</strong>: Added some example pointcuts in the section titled <em>Bringing it all together: Domain-Driven Pointcut Design</em>

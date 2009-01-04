@@ -1,0 +1,93 @@
+--- 
+wordpress_id: 15
+layout: post
+title: Annotation-defined Aspects
+wordpress_url: http://jonasboner.com/?p=15
+---
+<p />
+The upcoming release of <a href="http://aspectwerkz.codehaus.org/">AspectWerkz</a> (0.9) will have support for a new definition model in which the aspects are self-defined. This means that implementation and definition is written in the same self-contained component.
+
+<p />
+In this new definition model the aspects are regular Java classes and the advices and introductions are regular methods and inner classes in these classes. The aspects can be abstract and inheritance is used and treated like regular Java class inheritance. The meta-data (aspect definition) is defined using runtime attributes and is currently compiled in into the class on bytecode level (not needed in Java 1.5.x and above).
+
+<p />
+This new approach makes it easy to create reusable self-contained aspect components and libraries. It simplifies both the implementation, maintainance and refactorings since <b>everything</b> is written in one single Java class.
+
+<p />
+This is an example of a testing aspect defining a virtual mock object mixin that will be introduced (along with its interfaces) on all the classes matching the pattern <tt>foo.baz.*</tt>. 
+<pre>
+/**
+ * @Aspect perInstance
+ */
+public class MockObjectAspect extends Aspect {
+
+    /**
+     * @Introduce foo.baz.*
+     */
+    class MockObject extends MyBase implements Traceable, Metered {
+        // implementation of the mock object
+    }
+}
+
+
+<p />
+Here is another example showing a skeleton for an aspect implementing authentication and authorization.
+
+</pre><pre>
+/**
+ * @Aspect perThread
+ */
+public class RoleBasedAccess extends Aspect {
+
+     private Subject m_subject;
+
+    /**
+     * @Call * *..facade.*.*(..)
+     */
+    Pointcut facadeMethods;
+
+    /**
+     * @Execution * *..service.*.*(..)
+     */
+    Pointcut needsAuthorization;
+   
+    /**
+     * @Before facadeMethods
+     */
+    public void authenticateUser(JoinPoint joinPoint) throws Throwable {
+        Context context = ... // get principals and credentials
+        boolean granted = SecurityManager.authenticateUser(context) // authenticate the user (f.e. using JAAS)
+        if (granted) {
+            m_subject = ... // set the subject 
+        }
+        else {
+            throw new SecurityException("user not authenticated: " + context);
+        }
+    }
+
+    /**
+     * @Around needsAuthorization
+     */
+    public Object authorizeUser(JoinPoint joinPoint) throws Throwable {
+        MethodJoinPoint jp = (MethodJoinPoint)joinPoint;
+	boolean granted = SecurityManager.checkPermission(m_subject, jp.getTargetClass(), jp.getMethod());
+        if (granted) {
+            // proceed with normal method invocation
+            return joinPoint.proceed();
+        }
+        else {
+            throw new SecurityException("access denied at " + jp.getTargetClass() + "." + jp.getMethodName());
+        }
+    }
+}
+</pre>
+
+<p />
+Currently the runtime attributes implementation is based on JavaDoc tags. These are parsed and inserted into the class on bytecode level, so no source files are needed once the classes have been compiled. This is something that will become obsolete when Java 1.5 and the <a href="http://www.jcp.org/en/jsr/detail?id=175">JSR-175</a> is released, which will bring runtime attributes to the Java language. The extra compilation step needed to annotate the class files will then not be needed. This also means that pure Java refactorings of both implementation and definition in the aspects will be made possible (e.g. tool support).
+
+<p />
+The new release is scheduled to be released in the middle of end of november.
+<p />
+
+Stay tuned.
+<p />

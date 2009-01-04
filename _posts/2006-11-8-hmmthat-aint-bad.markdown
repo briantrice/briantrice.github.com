@@ -1,0 +1,26 @@
+--- 
+wordpress_id: 121
+layout: post
+title: Hmm...that ain't bad
+excerpt: |-
+  <p>
+  Linear scaling for HTTP session clustering? 
+  </p>
+  
+  <p>
+  I didn't think it was possible, but the latest benchmark for Terracotta Sessions clustering Tomcat for sure looks promising...</p>
+wordpress_url: http://jonasboner.com/2006/11/08/hmmthat-aint-bad/
+---
+<p>
+Linear scaling for HTTP session clustering? 
+</p>
+
+<p>
+I didn't think it was possible, but the latest benchmark for Terracotta Sessions clustering Tomcat for sure looks promising: 
+</p>
+
+<img src="http://blog.terracottatech.com/archive/sessions-benchmark.png" alt="Linear Scaling for HTTP Session Clustering" />
+
+<p>
+<a href="http://blog.terracottatech.com/archive/2006/10/linear_scaling.html">Read this post</a> if you want more details.
+</p>

@@ -1,0 +1,27 @@
+--- 
+wordpress_id: 86
+layout: post
+title: What Happened To Computer Literature That Makes You Think And Challenge The Way You Work?
+wordpress_url: http://jonasboner.com/?p=86
+---
+I like books.
+
+I enjoy spending time in libraries and bookstores, I can spend hours just browsing around and when my wife is getting bored (usually after 10 min) or when she comes back from her 3 h shopping round, she usually finds me in either the novel section, biography section or the section for computer literature.
+
+Unfortunately, the visits to the latter one has (the last years) started to disappointment me.
+
+Why? One of the major reasons is that the "learn-how-to-use-open-source-framework-X" type books have completely taken over the place. 90 % of the shelves are occupied by books like: 'X in Action', 'Pro Y', 'Professional development with W' or 'Z: developers notebook' etc. Phew...
+
+It seems that everyone is writing a book (and getting it published!) now days. I guess it is not necessarily a bad thing, but it for sure makes it harder to find the real gems, the books worth spending time reading.
+
+Generally, I have completely stopped reading the "learn-how-to-use-open-source-framework-X" type books.
+
+Most books in this category tend to be very shallow, overly simplified, not thought through, badly written and often combined with too extensive and verbose code samples (there are of course exceptions). Most likely because they have been written under a very tight deadline - set by the publisher knowing that the topic of the book is expected to be dead in 2 years.
+
+Books that is simply a walk-through of the APIs and ideas behind a specific framework or technology are generally useless. When I want to learn more about how to use framework X, then I can find the information I need both faster (and cheaper) on the Internet, and then in a format that is both searchable, printable and "cut-and-paste-able". Thanks Google.
+
+So, what is my definition of a "good book" - a book worth spending time reading?
+
+In general, books that <strong>makes you think</strong> and <strong>challenge the way you do things</strong>, books that <strong>raises questions</strong>. I generally prefer reading about concepts, things that I do not have to worry being outdated in a year or two. Books that have a place in my library even in 10 years from now.
+
+So, what happened to good computer literature? Well, fortunately it is still being written and published. It are just so much harder to find.
