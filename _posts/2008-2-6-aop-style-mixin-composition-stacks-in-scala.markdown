@@ -1,7 +1,7 @@
 --- 
 wordpress_id: 156
 layout: post
-title: AOP style Mixin Composition Stacks in Scala
+title: AOP-style Mixin Composition Stacks in Scala
 wordpress_url: http://jonasboner.com/2008/02/06/aop-style-mixin-composition-stacks-in-scala/
 ---
 Scala is one those great languages that is scalable. With scalable I mean that it is the language that grows with the user, that it makes simple things easy and hard things possible. A language that is easy to get started and to become productive in, but at the same time a deep language with very powerful constructs and abstractions. 
@@ -146,7 +146,7 @@ trait RetryStuff extends Stuff {
 
 To test this behavior (as well as the <em>rollback</em> feature in the <code>TransactionalStuff</code>) we can change the <code>RealStuff.getStuff</code> method to throw an exception: 
 
-</pre><pre>
+<pre>
 class RealStuff {
   def doStuff {
     println("doing real stuff")
