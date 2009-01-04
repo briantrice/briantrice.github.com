@@ -10,13 +10,6 @@ The waiter, perhaps in his 50s, comes up to me and not only takes my order but t
 
 We all have a lesson to learn here. If you feel stuck and trapped at work, not doing things you are passionate and care about, then I think you have two options:
 
-<ul>
-	<li>Try to change your mind set. Care about your work. Set high bars, strive for perfection, pay attention to the details. Never settle -- constantly try improve and challenge the way you work and think. Take pride in what you do and you will (hopefully) not only learn to love it, but people will notice and you will make a difference.
-</li>
-
-	<li>Or...quit and find something else to do. 
-</li>
-</ul>
 
 
 Life is too short to spend 9-5 doing stuff you don't love and are passionate about. Steve Jobs puts it very well in his Stanford University Commencement speech (<a href="http://youtube.com/watch?v=D1R-jKKp3NA">video</a> - <a href="http://news-service.stanford.edu/news/2005/june15/jobs-061505.html">transcription</a>):
