@@ -1,0 +1,16 @@
+--- 
+wordpress_id: 146
+layout: post
+title: "Article: Distributed Web Continuations with RIFE and Terracotta"
+wordpress_url: http://jonasboner.com/2007/08/08/article-distributed-web-continuations-with-rife-and-terracotta/
+---
+My and <a href="http://rifers.org/blogs/gbevin">Geert Bevin's</a> article about how to cluster <a href="http://rifers.org">RIFE's</a> Web Continuations with <a href="http://terracotta.org">Terracotta</a> has just been <a href="http://www.artima.com/lejava/articles/distributed_continuations.html">published on Artima</a>. 
+
+Here is the abstract:
+
+<blockquote>In this article, we discuss how the RIFE Web framework helps you become productive and efficient in building conversational Web applications. Productivity with RIFE is in large part due to RIFE's unique approach to Web developmentâ€”its use of continuations for conversational logic, and complete integration of meta-programming to minimize boilerplate code.
+
+We also introduce you to Terracotta and it's JVM-level clustering technology, and show you how Terracotta and RIFE can work together to create an application stack that allows you to scale out and ensure high-availability for your applications, but without sacrificing simplicity and productivity. This means working with POJOs, and minimal boilerplate and infrastructure code.</blockquote>
+
+It tries to not only explain but to show you in a pragmatic way how RIFE's continuations and Terracotta is a perfect match with their common goal of power with simplicity. But don't take my word for it, go on and <a href="http://www.artima.com/lejava/articles/distributed_continuations.html">read it yourself</a>. 
+ 

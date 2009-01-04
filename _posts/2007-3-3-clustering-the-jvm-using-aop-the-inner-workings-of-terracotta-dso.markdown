@@ -1,0 +1,9 @@
+--- 
+wordpress_id: 135
+layout: post
+title: "Clustering the JVM using AOP: the Inner Workings of Terracotta DSO"
+wordpress_url: http://jonasboner.com/2007/03/03/clustering-the-jvm-using-aop-the-inner-workings-of-terracotta-dso/
+---
+Our paper for <a href="http://www.aosd.net/2007/">AOSD 2007</a> has been published. It is titled 'Clustering the Java Virtual Machine using Aspect-Oriented Programming' and is a thorough and pragmatic discussion on how <a href="http://terracotta.org/">Terracotta's JVM-level clustering technology</a> is implemented from an AOP and bytecode weaving perspective. The discussion is driven by examples in AspectJ. 
+
+The paper is available for download <a href="http://www.aosd.net/2007/program/industry/I1-ClusteringJVMUsingAOP.pdf">here</a>.
