@@ -1,0 +1,70 @@
+--- 
+wordpress_id: 149
+layout: post
+title: "Clojure: a Lisp-dialect for the JVM - with focus on Functional and Concurrent Programming"
+wordpress_url: http://jonasboner.com/2007/10/18/clojure-a-lisp-dialect-for-the-jvm-with-focus-on-functional-and-concurrent-programming/
+---
+Yesterday, Rich Hickey announced the birth of <a href="http://clojure.sourceforge.net/">Clojure</a> - a lisp dialect for the JVM. 
+
+After just a brief look, Clojure is perhaps the most interesting language in the (now fairly large) family of 'dynamic languages for the JVM'. It brings the power of Lisp to the JVM but have made some design decisions that in some ways makes it more interesting than <a href="http://en.wikipedia.org/wiki/Common_lisp">ANSI Common Lisp</a>. Here are some of the things that I find particularly interesting:
+
+<ul>
+	<li>Allows pure functional programming with immutable state (with immutable data-structures etc.) for side-effect-free code (possible in CL but hard to enforce).
+</li>
+	<li><ul>
+Great support for concurrent programming: 
+	<li>Immutable state can be freely shared across threads.
+</li>
+	<li><a href="http://en.wikipedia.org/wiki/Software_transactional_memory">Software Transactional Memory</a> (STM) that allows atomic and isolated updates to mutable state (through "Refs") with rollback and retry upon collision.
+</li>
+	<li>Safe usage of mutable state through thread isolation (using "Vars").
+</li>
+</ul>
+</li>
+	<li>Full Lisp-style macro support and eval.
+</li>
+	<li>Compiles to JVM bytecode but still fully dynamic (sounds promising but I don't know its actual performance).
+</li>
+	<li>Excellent integration with Java APIs, with type inference for static compilation of Java API calls.
+</li>
+</ul>
+
+Here are some tasters (from the <a href="http://groups.google.com/group/clojure">forum</a>).
+
+<strong>Java integration:</strong>
+<pre>
+(new java.util.Date)
+=> Wed Oct 17 20:01:38 CEST 2007
+
+(. (new java.util.Date) (getTime))
+=> 1192644138751 
+
+(.. System out (println "This is cool!"))
+This is cool!
+</pre>
+
+<strong>Macros:</strong>
+<pre>  
+(defmacro time [form]
+  `(let [t0# (. System (currentTimeMillis))
+         res# ~form
+         t1# (. System (currentTimeMillis))]
+    (.. System out (println (strcat "Execution took "
+                                    (/ (- t1# t0#) 1000.0) " s")))
+    res#))
+
+Usage:
+(defn factorial [n]
+   (if (< n 2)
+       1
+       (* n (factorial (- n 1)))))
+
+(time (factorial 1000))
+=> Execution took 0.012 s
+     40... 
+</pre>
+
+It is still in beta but if you want to start playing around with it yourself, dive into the <a href="http://clojure.sourceforge.net/reference/getting_started.html">docs</a>.
+
+<strong>Dreaming on:</strong>
+Stuff that I would like to see (in order to make it the ultimate playground) are among other things: message-passing concurrency (I don't fully believe in STM...yet) and declarative pattern matching (from <a href="http://erlang.org">Erlang</a>), implicit currying and laziness (as in <a href="http://haskell.org">Haskell</a>), transparent distribution (as in <a href="http://www.mozart-oz.org/">Mozart/Oz</a> and Erlang) and optional static typing. Some of these can be found in <a href="http://www.lambdassociates.org/">Qi</a>, I just would love to see them on the JVM.  
