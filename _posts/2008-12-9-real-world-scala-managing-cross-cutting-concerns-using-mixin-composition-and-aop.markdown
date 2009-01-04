@@ -1,0 +1,257 @@
+--- 
+wordpress_id: 162
+layout: post
+title: "Real-World Scala: Managing Cross-Cutting Concerns using Mixin Composition and AOP"
+wordpress_url: http://jonasboner.com/?p=162
+---
+In a <a href="http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di/">previous post</a> I showed you how you could use mixin composition and self type annotations to enable Dependency Injection (DI). Mixin composition is an extremely powerful tool that you can utilize in many different ways to enable modular and reusable code.  In this post I'll try to show you how you can use it to solve the problem of crosscutting concerns using AOP/interceptor-style composition.
+
+<strong>Crosscutting concerns and AOP</strong>
+
+OOP has given us tools to reduce software complexity by introducing concepts like inheritance, abstraction, and polymorphism. However, developers face daily problems in software design that can't be solved easily using OOP. One of these problems is how to handle cross-cutting concerns in the application. 
+
+So what is a cross-cutting concern? A concern is a particular concept or area of interest. For example, in an ordering system the core concerns could be order processing and manufacturing, while the system concerns could be transaction handling and security management. A cross-cutting concern is a concern that affects several classes or modules, a concern that is not well localized and modularized.
+
+Symptoms of a cross-cutting concern are:
+
+* Code tangling - when a module or code section is managing several concerns simultaneously
+* Code scattering - when a concern is spread over many modules and is not well localized and modularized
+
+These symptoms affect software in various ways; for example, they make it harder to maintain and reuse software as well as harder to write and understand.
+
+Aspect-Oriented Programming (AOP) tries to solve these problems by introducing the concept of separation of concerns, in which concerns can be implemented in a modular and well-localized way. AOP solves this by adding an extra dimension to the design space, and introduces constructs that allow us to define the cross-cutting concerns, to lift them out into a new dimension and package them in a modular way. 
+
+We are currently using two different types of interceptors (aspects if you like):
+
+* Mixin composition stacks -- a limited but sometimes very useful approach
+* Generic interceptors/aspects using a pointcut pattern language
+
+<strong>Mixin composition stacks</strong>
+
+Mixin composition stacks is a core language feature of Scala and is similar to Rickard Oberg's idea on using the so-called <a href="http://www.jroller.com/rickard/date/20031028">Abstract Schema</a> pattern for type-safe AOP in plain Java. (This is a very contrived example that probably shows that don't know a zip about dogs, but please bare with me.)
+
+First let's define a couple of interfaces; <code>Dog</code> and <code>DogMood</code> modeled as a mixins (in this case without an implementation so similar to Java's interface):
+
+<pre>
+trait Dog {
+  def greet(me: Human)
+}
+
+trait DogMood extends Dog {
+  def greet(me: Human) {
+    println(me.sayHello)
+  }
+}
+</pre>
+
+Now let's define two different mixin "interceptors" that implement these interfaces. The first one defining an angry dog and the other one a hungry dog:
+
+<pre>
+trait AngryDog extends DogMood {
+  abstract override def greet(me: Human) {
+    println("Dog: Barks @ " + me)
+    super.greet(me)
+  }
+}
+</pre>
+
+<pre>
+trait HungryDog extends DogMood {
+  abstract override def greet(me: Human) {
+    super.greet(me)
+    println("Dog: Bites " + me)
+  }
+}
+</pre>
+
+As we can see in this example they both override the <code>Mood.greet</code> method. If we look more closely we can see that they follow the same pattern:
+
+<ul>
+<li>Enter method (<tt>greet</tt>)</li>
+<li>Do something</li>
+<li>Invoke the same method on <tt>super</tt> (<tt>super.greet</tt>)</li>
+<li>Do something else</li>
+</ul>
+
+The trick here is in the semantics of the call to super. Here Scala will invoke the next mixin in a stack of mixins, e.g. the same method in the "next" mixin that have been mixed in. Exactly what f.e. <a href="http://aspectj.org">AspectJ</a> does in its <tt>proceed(..)</tt> method and what Spring does in its interceptors. 
+
+Now let's fire up the Scala REPL and create a component based on the <code>Dog</code> interface. Scala's mixin composition can take place when we instantiate an instance, e.g. it allows us to mix in functionality into specific instances that object creation time for specific object instances.
+
+<pre>
+scala> val dog = new Dog with AngryDog with HungryDog 
+stuff2: Dog with AngryDog with HungryDog = $anon$1@1082d45
+
+scala> dog.greet(new Human("Me"))
+Dog: Barks @ Me
+Me: Hello doggiedoggie
+Dog: Bites Me
+</pre>
+
+As you can see the call to <code>Dog.greet</code> is intercepted by the different moods that are added to the dog at instantiation time.
+
+Interceptors like this are as you can see not generically reusable since they are tied to a specific interface, however if well designed can be a pretty powerful technique.  It has the advantage that everything is statically compiled and type-checked by the Scala compiler
+
+<strong>Generic pointcut-based aspects</strong>
+
+The main usage of generic aspects is for implementing infrastructure concerns such as logging, transaction demarcation, security, clustering, persistence etc.
+
+In order to create a framework for implementing generic aspects, the first thing we need to do is to define an invocation context, holding arguments, method to be invoked as well as the target instance.
+
+<pre>
+case class Invocation(val method: Method, val args: Array[AnyRef], val target: AnyRef) {
+  def invoke: AnyRef = method.invoke(target, args:_*)
+  override def toString: String = "Invocation [method: " + method.getName + ", args: " + args + ", target: " + target + "]"
+  override def hashCode(): Int = { ... }
+  override def equals(that: Any): Boolean = { ... }
+}
+</pre>
+
+The second thing that we need to do is to create a base Interceptor trait. This interface defines two different pointcut matching methods.  The first one matches a precompiled <a href="http://aspectj.org">AspectJ </a>pointcut expression using the PointcutParser in AspectJ. This allows defining interceptors matches AspectJ compatible (method) pointcut expressions. The second matcher matches methods or classes that is annotated with a specific annotation.
+
+<pre>
+trait Interceptor {
+  protected val parser = PointcutParser.getPointcutParserSupportingAllPrimitivesAndUsingContextClassloaderForResolution
+
+  protected def matches(pointcut: PointcutExpression, invocation: Invocation): Boolean = {
+    pointcut.matchesMethodExecution(invocation.method).alwaysMatches ||
+    invocation.target.getClass.getDeclaredMethods.exists(pointcut.matchesMethodExecution(_).alwaysMatches) ||
+    false
+  }
+
+  protected def matches(annotationClass: Class[T] forSome {type T <: Annotation}, invocation: Invocation): Boolean = {
+    invocation.method.isAnnotationPresent(annotationClass) ||
+    invocation.target.getClass.isAnnotationPresent(annotationClass) ||
+    false
+  }
+
+  def invoke(invocation: Invocation): AnyRef
+}
+</pre>
+
+The last thing we need to do is to create a factory method allows us to wire in our interceptors, declarative, in a seamless fashion. This factory is using the plain old Java Dynamic Proxy API to create a proxy for our base components.
+
+<pre>
+object ManagedComponentFactory {
+  def createComponent[T](intf: Class[T] forSome {type T}, proxy: ManagedComponentProxy): T =
+    Proxy.newProxyInstance(
+      proxy.target.getClass.getClassLoader,
+      Array(intf),
+      proxy).asInstanceOf[T]
+}
+
+class ManagedComponentProxy(val target: AnyRef) extends InvocationHandler {
+  def invoke(proxy: AnyRef, m: Method, args: Array[AnyRef]): AnyRef = invoke(Invocation(m, args, target))
+  def invoke(invocation: Invocation): AnyRef = invocation.invoke
+}
+</pre>
+
+Just using this factory pass is won't do any wiring for us, which is actually good since if we would use the dynamic proxy the old-fashioned way and we would have it to invoke each interceptor explicitly using reflection. But we can do better than that. Instead we will let the Scala compiler statically compiled in an interceptor stack with all our interceptors. This is best explained with an example.
+
+In this example we will define a couple of simple services called <code>Foo</code> and <code>Bar</code> along with their implementations. We will then implement two different infrastructure in interceptors; logging and transaction demarcation.
+
+Let's first define the service.
+
+<pre>
+  import javax.ejb.{TransactionAttribute, TransactionAttributeType}
+
+  trait Foo {
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    def foo(msg: String)
+    def bar(msg: String)
+  }
+
+  class FooImpl extends Foo {
+    val bar: Bar = new BarImpl
+    def foo(msg: String) = println("msg: " + msg)
+    def bar(msg: String) = bar.bar(msg)
+  }
+
+  trait Bar {
+    def bar(msg: String)
+  }
+
+  class BarImpl extends Bar {
+    def bar(msg: String) = println("msg: " + msg)
+  }
+</pre>
+
+Now let's define a logging interceptor.  Both of these interceptors are just mockups, since the actual implementation is not really of interest. The logging interceptor is defined using a standard AspectJ pointcut while the transaction interceptor is wired to a specific annotation.
+
+<pre>
+  trait LoggingInterceptor extends Interceptor {
+    val loggingPointcut = parser.parsePointcutExpression("execution(* *.bar(..))")
+
+    abstract override def invoke(invocation: Invocation): AnyRef = 
+      if (matches(loggingPointcut , invocation)) {
+        println("=====> Enter: " + invocation.method.getName + " @ " + invocation.target.getClass.getName)
+        val result = super.invoke(invocation)
+        println("=====> Exit: " + invocation.method.getName + " @ " + invocation.target.getClass.getName)
+        result
+      } else super.invoke(invocation)
+  }
+
+  trait TransactionInterceptor extends Interceptor {
+    val matchingJtaAnnotation = classOf[javax.ejb.TransactionAttribute]
+
+    abstract override def invoke(invocation: Invocation): AnyRef = 
+      if (matches(matchingJtaAnnotation, invocation)) {
+        println("=====> TX begin")
+        try {
+          val result = super.doStuff
+          println("=====> TX commit")
+          result     
+        } catch {
+          case e: Exception => 
+            println("=====> TX rollback ")
+        } 
+      } else super.invoke(invocation)
+  }
+</pre>
+
+Now let's do the wiring.  Here we are using dynamic proxy-based factory that we implemented because you can see, the actual wiring on the interceptor stack is done using Scala mixing composition and therefore has all its benefits, like compiler type checking and enforcement, the speed of statically compiled code, refactoring safety etc.
+
+<pre>
+  var foo = ManagedComponentFactory.createComponent[Foo](
+    classOf[Foo],
+    new ManagedComponentProxy(new FooImpl)
+      with LoggingInterceptor
+      with TransactionInterceptor)
+
+  foo.foo("foo")
+  foo.bar("bar")
+ }
+</pre> 
+ 
+This will produce the following output:
+
+<pre>
+=====> TX begin
+msg: foo
+=====> TX commit
+=====> Enter: bar @ FooImpl
+msg: bar
+=====> Exit: bar @ FooImpl
+</pre>
+
+So this wraps it up.  I hope that you have learned a little bit about how powerful mixin composition in Scala is and how it can be used to write modular and reusable components with little effort.
+
+This is working fine for us, but there is definitely room for improvement. For example, runtime matcher in the interceptor is fast enough for the annotation matching (only a boolean check) but the AspectJ pointcut matcher is a bit slower since it has to do some more work. This might turn out be a problem or not, most infrastructure services (like persistence and security) performs quite a lot to work and in these cases the overhead over the interceptor of matching will not affect the overall performance much, but in other cases (such as logging or auditing) it might. We are so far only use the annotation matching, so it has not turned out to be a problem so far.  However, if it turns out to be a performance bottleneck then we will most likely switch to using my old AspectWerkz <a href="http://jonasboner.com/2004/12/08/awproxy-proxy-on-steroids/">AWProxy</a> to get rid of all the Java reflection code and runtime matching.
+
+For those that are interested, here is the actual JTA transaction demarcation interceptor that we are using in production (implementing all the EJB transaction semantics).
+
+<pre>
+trait EjbTransactionInterceptor extends Interceptor with TransactionProtocol {
+  val matchingJtaAnnotation = classOf[javax.ejb.TransactionAttribute]
+
+  abstract override def invoke(invocation: Invocation): AnyRef = if (matches(matchingJtaAnnotation, invocation)) {
+    val txType = getTransactionAttributeTypeFor(invocation.target.getClass, invocation.method)
+    if (txType == TransactionAttributeType.REQUIRED)           withTxRequired { super.invoke(invocation) }
+    else if (txType == TransactionAttributeType.REQUIRES_NEW)  withTxRequiresNew { super.invoke(invocation) }
+    else if (txType == TransactionAttributeType.MANDATORY)     withTxMandatory { super.invoke(invocation) }
+    else if (txType == TransactionAttributeType.NEVER)         withTxNever { super.invoke(invocation) }
+    else if (txType == TransactionAttributeType.SUPPORTS)      withTxSupports { super.invoke(invocation) }
+    else if (txType == TransactionAttributeType.NOT_SUPPORTED) withTxNotSupported { super.invoke(invocation) }
+    else super.invoke(invocation)
+  } else super.invoke(invocation)
+}
+</pre>
