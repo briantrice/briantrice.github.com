@@ -4,6 +4,7 @@ layout: post
 title: "Real-World Scala: Fault-tolerant Concurrent Asynchronous Components"
 wordpress_url: http://jonasboner.com/?p=169
 ---
+
 <h1>
 Real-World Scala: Fault-tolerant Concurrent Asynchronous Components
 </h1>

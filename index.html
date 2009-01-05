@@ -4,7 +4,6 @@ title: Jonas Bon&#233;r
 ---
 
 {% include top_menu.html %}
-{% include scripts.html %}
 
 <div id="home">
   <p>
@@ -14,7 +13,7 @@ title: Jonas Bon&#233;r
     {% for post in site.posts limit:5 %}
       <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
     {% endfor %}
-    <li><a href="/archives.html">archives...</a></li>
+    <li><a href="/archives/">archives...</a></li>
   </ul>
   </p>
 </div>
