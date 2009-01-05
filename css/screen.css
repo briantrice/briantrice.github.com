@@ -297,7 +297,7 @@ ul.posts {
 #main-navigation {
     background: #eee url(nav-bg.gif) repeat-x 0 0;
     border-bottom: 1px solid #ccc;
-    font-family: verdana;
+    font-size: 80%;
 }
  
 #main-navigation-inner {
@@ -367,4 +367,3 @@ ul.posts {
     padding: 0px 5px 1px 5px;
     font-size: 11px;
 }
- 
