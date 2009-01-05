@@ -1,0 +1,40 @@
+---
+layout: nil
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <url>
+      <loc>http://jonasboner.com/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://jonasboner.com/projects/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://jonasboner.com/resume/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://jonasboner.com/archives/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://jonasboner.com/about/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://jonasboner.com/articles/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+   <url>
+      <loc>http://jonasboner.com/talks/index.html</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+{% for post in site.posts %}
+   <url>
+      <loc>http://jonasboner.com{{ post.url }}</loc>
+      <changefreq>weekly</changefreq>
+   </url>
+{% endfor %}
+</urlset>
