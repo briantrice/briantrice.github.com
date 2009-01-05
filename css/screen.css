@@ -297,7 +297,7 @@ ul.posts {
 #main-navigation {
     background: #eee url(nav-bg.gif) repeat-x 0 0;
     border-bottom: 1px solid #ccc;
-    font-size: 80%;
+    font-size: 100%;
 }
  
 #main-navigation-inner {
