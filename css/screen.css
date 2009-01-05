@@ -161,19 +161,17 @@ ul.posts {
 }
 
   /* standard */
-
+/*
  #post pre {
-    overflow:auto;
-    border: 1px solid #ddd;
-    background-color: #eef;
-    padding: 0 .4em;
-    padding: 1em 1em;
-/*    
-    border-top:1px dashed #939393;
-    border-left:1px dashed #939393;
-    border-right:1px dashed #939393;
-    border-bottom:1px dashed #939393;
-*/  }
+   overflow:auto;
+   font-size: 80%;
+   background-color: #eef;
+   padding: 1em 1em;
+   border-top:1px dashed #939393;
+   border-left:1px dashed #939393;
+   border-right:1px dashed #939393;
+   border-bottom:1px dashed #939393;  
+  }
   
   #post code {
     border: 1px solid #ddd;
@@ -197,7 +195,7 @@ ul.posts {
   #post pre.terminal code {
     background-color: #333;
   }
-
+*/
 #related {
   margin-top: 2em;
 }
