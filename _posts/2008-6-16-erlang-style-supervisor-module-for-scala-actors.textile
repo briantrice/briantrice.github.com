@@ -43,7 +43,7 @@ This walk-through will only cover some of the API, for more details look at the 
 
 <strong>1. Create our server messages</strong>
 
-<pre>
+<pre name="code" class="scala">
 import scala.actors._
 import scala.actors.Actor._
 
@@ -60,7 +60,7 @@ case object Die extends SampleMessage
 <strong>2. Create a <code>GenericServer</code></strong>
 We do that by extending the <code>GenericServer</code> trait and override the <code>body</code> method.
 
-<pre>
+<pre name="code" class="scala">
 class SampleServer extends GenericServer {
 
   // This method implements the core server logic and naturally has to be overridden
@@ -84,7 +84,7 @@ class SampleServer extends GenericServer {
 <strong>3. Wrap our <code>SampleServer</code> in a <code>GenericServerContainer</code></strong>
 Here we also give it a name to be able to refer to it later. We are creating two instances of the same server impl in order to try out multiple server restart in case of failure. 
 
-<pre>
+<pre name="code" class="scala">
 object sampleServer1 extends GenericServerContainer("sample1", () => new SampleServer)
 object sampleServer2 extends GenericServerContainer("sample2", () => new SampleServer)
 </pre>
@@ -92,7 +92,7 @@ object sampleServer2 extends GenericServerContainer("sample2", () => new SampleS
 <strong>4. Create a <code>Supervisor</code> configuration</strong>
 Here we create a <code>SupervisorFactory</code> that is configuring our servers. The configuration mimics the Erlang configuration and defines a general restart strategy for our <code>Supervisor</code> as well as a list of workers (servers) which for each we define a specific life-cycle.
 
-<pre>
+<pre name="code" class="scala">
 object factory extends SupervisorFactory {
   override protected def getSupervisorConfig: SupervisorConfig = {
     SupervisorConfig(
@@ -110,12 +110,12 @@ object factory extends SupervisorFactory {
 
 <strong>5. Create a new <code>Supervisor</code></strong>
 
-<pre>
+<pre name="code" class="scala">
 val supervisor = factory.newSupervisor
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 12:25:30.031 [Thread-2] DEBUG com.jonasboner.supervisor.Supervisor - Configuring supervisor:com.jonasboner.supervisor.Supervisor@860d49
 12:25:30.046 [Thread-2] DEBUG com.jonasboner.supervisor.Supervisor - Linking actor [Main$SampleServer$1@1b9240e] to supervisor [com.jonasboner.supervisor.Supervisor@860d49]
 12:25:30.062 [Thread-2] DEBUG com.jonasboner.supervisor.Supervisor - Linking actor [Main$SampleServer$1@1808199] to supervisor [com.jonasboner.supervisor.Supervisor@860d49]
@@ -125,25 +125,25 @@ Output:
 <strong>6. Start the <code>Supervisor</code></strong>
 This also starts the servers.
 
-<pre>
+<pre name="code" class="scala">
 supervisor ! Start
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 12:25:30.078 [Thread-8] INFO  com.jonasboner.supervisor.Supervisor - Starting server: Main$sampleServer2$2$@1479feb
 12:25:30.078 [Thread-8] INFO  com.jonasboner.supervisor.Supervisor - Starting server: Main$sampleServer1$2$@97a560
 </pre>
 
 <strong>7. Try to communicate with the servers.</strong>
 Here we try to send a couple one way asynchronous messages to our servers. 
-<pre>
+<pre name="code" class="scala">
 sampleServer1 ! OneWay
 </pre>
 
 Try to get a reference to our sampleServer2 (by name) from the Supervisor before sending a message.
 
-<pre>
+<pre name="code" class="scala">
 supervisor.getServer("sample2") match {
   case Some(server2) => server2 ! OneWay
   case None => println("server [sample2] could not be found")
@@ -151,7 +151,7 @@ supervisor.getServer("sample2") match {
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Received OneWay
 Received OneWay
 </pre>
@@ -159,7 +159,7 @@ Received OneWay
 <strong>8. Send a message using a future</strong>
 Try to send an asynchronous message - receive a future - and wait 100 ms (time-out) for the reply.
 
-<pre>
+<pre name="code" class="scala">
 val future = sampleServer1 !! Ping
 val reply1 = future.receiveWithin(100) match {
   case Some(reply) => 
@@ -170,7 +170,7 @@ val reply1 = future.receiveWithin(100) match {
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Received Ping
 Received reply: Pong
 </pre>
@@ -178,12 +178,12 @@ Received reply: Pong
 <strong>9. Kill one of the servers</strong>
 Try to send a message (Die) telling the server to kill itself (by throwing an exception).
 
-<pre>
+<pre name="code" class="scala">
 sampleServer1 ! Die
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Received Die..dying...
 12:25:30.093 [Thread-8] ERROR c.j.supervisor.AllForOneStrategy - Server [Main$SampleServer$1@1b9240e] has failed due to [java.lang.RuntimeException: Received Die message] - scheduling restart - scheme: ALL_FOR_ONE.
 12:25:30.093 [Thread-8] DEBUG Main$sampleServer2$2$ - Waiting 1000 milliseconds for the server to shut down before killing it.
@@ -201,46 +201,46 @@ Expected exception: java.lang.RuntimeException: Time-out
 
 If this call times out, the error handler we define will be invoked - in this case throw an exception. It is likely that this call will time out since the server is in the middle of recovering from failure and we are on purpose defining a very short time-out to trigger this behavior. 
 
-<pre>
+<pre name="code" class="scala">
 val reply2 = try {
   sampleServer1 !!! (Ping, throw new RuntimeException("Time-out"), 10) 
 } catch { case e => println("Expected exception: " + e.toString); Pong } 
 </pre>
 
 The output of this call (due to the async nature of actors) is interleaved with the logging for the restart of the servers. As you can see the log below can be found in the middle of the restart output.  
-<pre>
+<pre name="code" class="scala">
 12:25:30.093 [main] DEBUG com.jonasboner.supervisor.Helpers$ - Future timed out while waiting for actor: Main$SampleServer$1@1b9240e
 Expected exception: java.lang.RuntimeException: Time-out
 </pre>
 
 Server should be up again. Try the same call again
 
-<pre>
+<pre name="code" class="scala">
 val reply3 = try {
   sampleServer1 !!! (Ping, throw new RuntimeException("Time-out"), 1000) 
 } catch { case e => println("Expected exception: " + e.toString); Pong } 
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Received Ping
 </pre>
 
 Also check that server number 2 is up and healthy.
 
-<pre>
+<pre name="code" class="scala">
 sampleServer2 ! Ping 
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Received Ping
 </pre>
 
 <strong>11. Try to hotswap the server implementation</strong>
 Here we are passing in a completely new implementation of the server logic (doesn't look that different tough, but it can be any piece of scala pattern matching code) to the server's hotswap method. 
 
-<pre>
+<pre name="code" class="scala">
 sampleServer1.hotswap(Some({
   case Ping => 
     println("Hotswapped Ping")
@@ -249,19 +249,19 @@ sampleServer1.hotswap(Some({
 
 <strong>12. Try the hotswapped server out</strong>
 
-<pre>
+<pre name="code" class="scala">
 sampleServer1 ! Ping
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Hotswapped Ping
 </pre>
 
 <strong>13. Hotswap again
 </strong>
 
-<pre>
+<pre name="code" class="scala">
 sampleServer1.hotswap(Some({
   case Pong => 
     println("Hotswapped again, now doing Pong")
@@ -272,7 +272,7 @@ sampleServer1.hotswap(Some({
 <strong>14. Send an asyncronous message that will wait on a future (using a different syntax/method).</strong>
 Method returns an <code>Option[T]</code> which can be of two different types; <code>Some(result)</code> or <code>None</code>. If we receive <code>Some(result)</code> then we return the result, but if <code>None</code> is received then we invoke the error handler that we define in the <code>getOrElse</code> method. In this case print out an info message (but you could throw an exception or do whatever you like...) and return a default value (<code>Ping</code>). 
 
-<pre>
+<pre name="code" class="scala">
 val reply4 = (sampleServer1 !!! Pong).getOrElse({
   println("Time out when sending Pong")
   Ping
@@ -280,13 +280,13 @@ val reply4 = (sampleServer1 !!! Pong).getOrElse({
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Hotswapped again, now doing Pong
 </pre>
 
 Same invocation with pattern matching syntax.
 
-<pre>
+<pre name="code" class="scala">
 val reply5 = sampleServer1 !!! Pong match {
   case Some(result) => result
   case None => println("Time out when sending Pong"); Ping  
@@ -294,44 +294,44 @@ val reply5 = sampleServer1 !!! Pong match {
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Hotswapped again, now doing Pong
 </pre>
 
 <strong>15. Hotswap back to original implementation.</strong>
 This is done by passing in <code>None</code> to the hotswap method.
 
-<pre>
+<pre name="code" class="scala">
 sampleServer1.hotswap(None)
 </pre>
 
 <strong>16. Test the final hotswap</strong>
 
-<pre>
+<pre name="code" class="scala">
 sampleServer1 !  Ping
 </pre>
 
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 Received Ping 
 </pre>
 
 <strong>17. Shut down the supervisor and its server(s)</strong>
 
-<pre>
+<pre name="code" class="scala">
 supervisor ! Stop
 </pre>
 
 Output: 
-<pre>
+<pre name="code" class="scala">
 12:25:31.093 [Thread-6] INFO  com.jonasboner.supervisor.Supervisor - Stopping server: Main$sampleServer2$2$@1479feb
 12:25:31.093 [Thread-6] INFO  com.jonasboner.supervisor.Supervisor - Stopping server: Main$sampleServer1$2$@97a560
 12:25:31.093 [Thread-6] INFO  com.jonasboner.supervisor.Supervisor - Stopping supervisor: com.jonasboner.supervisor.Supervisor@860d49
 </pre>
 
 You can find this code in the <code>sample.scala</code> file in the root directory of the distribution. Run it by invoking:
-<pre>
+<pre name="code" class="scala">
 scala -cp target/supervisor-0.3.jar:[dependency jars: slf4j and logback] sample.scala
 </pre>
 

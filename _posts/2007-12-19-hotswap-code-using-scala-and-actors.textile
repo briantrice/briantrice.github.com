@@ -18,7 +18,7 @@ An actor is an abstraction that implements <a href="http://c2.com/cgi/wiki?Messa
 
 Let's start by writing a little server. We implement this in the form of a <code>trait</code>, which is Scala's <a href="http://en.wikipedia.org/wiki/Mixin">mixin</a> construct. Traits allows you to build up your components using so-called mixin composition which is something that can give you a very high grade of reuse and flexibility. This <code>trait</code> only defines a single method named <code>status</code> which prints out info about the enclosing instance. Completely useless and not much for a server, but it will give you the idea. Then we subclass this mixin and define the <code>ServerOne</code> concrete server class (with the <code>status</code> method mixed in). 
 
-<pre>
+<pre name="code" class="scala">
 // servers
 trait Server {
   def status = println("current server: " + this)
@@ -28,7 +28,7 @@ class ServerOne extends Server
 
 Let's instantiate the <code>ServerOne</code> class and see what the <code>status</code> method it will print out. Here we are doing it interactively through Scala's REPL (read-eval-print-loop).
 
-<pre>
+<pre name="code" class="scala">
 $ scala -cp .
 
 scala> val server = new ServerOne
@@ -40,7 +40,7 @@ current server: ServerOne@7be75d
 
 Now, before we write the actor we have to define the messages it responds to. Here Scala is using something called <em>case classes</em> which are similar to normal classes but with some enhancements. First you can match on them, e.g. use pattern matching similar to the one found in Erlang. They also have some syntactic sugar, f.e. you can create them without using <code>new</code>, the compiler generates getters and setters for the constructor arguments, equality is not based on object id but on meaning/content (something that makes them ideal to use for <a href="http://c2.com/cgi/wiki?ValueObject">value objects</a>, but that is another story). We define two different messages; Status and HotSwap.
 
-<pre>
+<pre name="code" class="scala">
 // triggers the status method
 case object Status
 
@@ -62,7 +62,7 @@ This will work since the <code>react</code> method will in fact never return but
 
 At the end we have also added a match-all pattern that does nothing, this is defined by the <code>case _ => ...</code> clause. Let's take a look at the code.
 
-<pre>
+<pre name="code" class="scala">
 class ServerActor extends Actor {
   def act = {
     println("starting server actor...")
@@ -89,7 +89,7 @@ Finally we will follow one of Scala's idioms and create a companion object for o
 
 Worth to note is that the <code>val</code> holding our actor is initialized when the enclosing object is first used, and since we are starting up the actor in the initialization block of the <code>val</code>, the actor will not be started until it is used for the first time. 
 
-<pre>
+<pre name="code" class="scala">
 // actor companion object
 object ServerActor {
   val actor = {
@@ -101,7 +101,7 @@ object ServerActor {
 
 Let's try to run it in the Scala REPL. The Scala function <em>!</em> (pronounced bang) means "send a message". So <em>act ! msg</em> means send message <em>msg</em> to actor <em>act</em>.
 
-<pre>
+<pre name="code" class="scala">
 $ scala -cp .  
 
 scala> import hotswap._
@@ -136,7 +136,7 @@ This would be even more cool if Scala came with an SSH server that could provide
 
 This is a slightly simplified version of the GenericServer code (as discussed <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/">here</a>), allowing hotswap of arbitrary pieces of pattern matching code: 
 
-<pre>
+<pre name="code" class="scala">
 // the actor's main loop
 def act = loop { react { genericBase orElse actorBase } }
 
@@ -160,7 +160,7 @@ def body: PartialFunction[Any, Unit] = {
 
 This code can be used like this: 
 
-<pre>
+<pre name="code" class="scala">
 server ! HotSwap(Some({
   case Ping => 
     println("Ping")

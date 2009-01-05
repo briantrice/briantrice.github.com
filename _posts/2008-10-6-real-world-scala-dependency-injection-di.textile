@@ -26,7 +26,7 @@ I will try to explain things in steps which I refactor towards the final version
 
 First, let's create a <code>UserRepository</code> (DAO) implementation. 
 
-<pre>
+<pre name="code" class="scala">
 // a dummy service that is not persisting anything
 // solely prints out info
 class UserRepository {
@@ -43,7 +43,7 @@ Here we could have split up the implementation in a trait interface and its impl
 
 Now let's create a user service (also a dummy one, merely redirecting to our repository). 
 
-<pre>
+<pre name="code" class="scala">
 class UserService {
   def authenticate(username: String, password: String): User = 
     userRepository.authenticate(username, password)  
@@ -60,7 +60,7 @@ Here you can see that we are referencing an instance of the <code>UserRepository
 
 Ok. Now the interesting stuff starts.  Let's first wrap the <code>UserRepository</code> in an enclosing trait and instantiate the user repository there. 
 
-<pre>
+<pre name="code" class="scala">
 trait UserRepositoryComponent {
   val userRepository = new UserRepository
   class UserRepository {
@@ -78,7 +78,7 @@ This simply creates a component namespace for our repository. Why? Stay with me 
 
 Now let's look at the <code>UserService</code>, the user of the repository. In order to declare that we would like to have the <code>userRepository</code> instance injected in the <code>UserService</code> we will first do what we did with the repository above; wrap the it in an enclosing (namespace) trait and use a so-called <a href="http://www.scala-lang.org/node/124">self-type annotation</a> to declare our need for the <code>UserRepository</code> service. Sounds more complicated than it is. Let's look at the code.
  
-<pre>
+<pre name="code" class="scala">
 // using self-type annotation declaring the dependencies this 
 // component requires, in our case the UserRepositoryComponent
 trait UserServiceComponent { this: UserRepositoryComponent =>
@@ -95,13 +95,13 @@ trait UserServiceComponent { this: UserRepositoryComponent =>
 
 The self-type annotation we are talking about is this code snippet: 
 
-<pre>
+<pre name="code" class="scala">
 this: UserRepositoryComponent =>
 </pre>
 
 If you need to declare more than one dependency then you can compose the annotations like this: 
 
-<pre>
+<pre name="code" class="scala">
 this: Foo with Bar with Baz =>
 </pre>
 
@@ -109,7 +109,7 @@ Ok. Now we have declared the <code>UserRepository</code> dependency. What is lef
 
 In order to do that the only thing we need to do is to merge/join the different namespaces into one single application (or module) namespace. This is done by creating a "module" object composed of all our components. When we do that all wiring is happening automatically. 
 
-<pre>
+<pre name="code" class="scala">
 object ComponentRegistry extends
   UserServiceComponent with
   UserRepositoryComponent 
@@ -121,7 +121,7 @@ Another beauty is that everything is immutable (all dependencies are declared as
 
 In order to use the application we only need to get the "top-level" component from the registry, and all other dependencies are wired for us (similar to how Guice/Spring works).
 
-<pre>
+<pre name="code" class="scala">
 val userService = ComponentRegistry.userService
 ...
 val user = userService.authenticate(..) 
@@ -137,7 +137,7 @@ Let's fix it.
 
 Instead of instantiating the services in their enclosing component trait, let's change it to an abstract member field. 
 
-<pre>
+<pre name="code" class="scala">
 trait UserRepositoryComponent {
   val userRepository: UserRepository
 
@@ -147,7 +147,7 @@ trait UserRepositoryComponent {
 } 
 </pre>
 
-<pre>
+<pre name="code" class="scala">
 trait UserServiceComponent { 
   this: UserRepositoryComponent => 
 
@@ -161,7 +161,7 @@ trait UserServiceComponent {
 
 Now, we can move the instantiation (and configuration) of the services to the <code>ComponentRegistry</code> module.
 
-<pre>
+<pre name="code" class="scala">
 object ComponentRegistry extends 
   UserServiceComponent with 
   UserRepositoryComponent 
@@ -179,7 +179,7 @@ To show you what I mean, we'll now create a "testing environment" to be used dur
 
 Now, instead of instantiating the actual services we instead create mocks to each one of them. We also change the "world" to a trait (why, I will show you in a second).
 
-<pre>
+<pre name="code" class="scala">
 trait TestingEnvironment extends
   UserServiceComponent with
   UserRepositoryComponent with 
@@ -194,7 +194,7 @@ Here we are not merely creating mocks but the mocks we create are wired in as th
  
 Ok, now comes the fun part. Let's create a unit test in which we are mixing in the <code>TestEnvironment</code> mixin, which is holding all our mocks.
 
-<pre>
+<pre name="code" class="scala">
 class UserServiceSuite extends TestNGSuite with TestEnvironment {
 
   @Test { val groups=Array("unit") }
@@ -226,7 +226,7 @@ Let's now take a look at some other ways of doing DI in Scala. This post is alre
 <strong>Using structural typing</strong>
 
 This technique using <a href="http://scala.sygneca.com/patterns/duck-typing-done-right">structural typing</a> was posted by Jamie Webb on the Scala User mailing list some time ago. I like this approach; elegant, immutable, type-safe.
-<pre>
+<pre name="code" class="scala">
 // =======================
 // service interfaces
 trait OnOffDevice {
@@ -279,7 +279,7 @@ new Client(Config)
 
 This approach is simple and straight-forward. But I don't really like that the actual wiring (importing the implicit declarations) is scattered and tangled with the application code.  
 
-<pre>
+<pre name="code" class="scala">
 // =======================
 // service interfaces
 trait OnOffDevice {
@@ -332,7 +332,7 @@ warmer.trigger
 
 Scala works nicely with separate DI frameworks and early on we were using <a href="http://code.google.com/p/google-guice/">Google Guice</a>. You can use Guice in many different ways, but here we will discuss a slick technique based on a <code>ServiceInjector</code> mixin that my Jan Kriesten showed me. 
 
-<pre>
+<pre name="code" class="scala">
 // =======================
 // service interfaces
 trait OnOffDevice {
@@ -412,7 +412,7 @@ That sums up what I had planned to go through in this article. I hope that you h
 
 Below I have added a Cake Pattern version of the last example for easier comparison between the different DI strategies. Just a note, if you compare the different strategies using this naive example then the Cake Pattern might look a bit overly complicated with its nested (namespace) traits, but it really starts to shine when you have a less then trivial example with many components with more or less complex dependencies to manage. 
 
-<pre>
+<pre name="code" class="scala">
 // =======================
 // service interfaces
 trait OnOffDeviceComponent {

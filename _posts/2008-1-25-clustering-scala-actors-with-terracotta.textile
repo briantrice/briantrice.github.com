@@ -23,7 +23,7 @@ I have spent some time last weeks looking into if would make sense to utilize <a
 
 But before we do anything, let my point you to the <a href="http://svn.terracotta.org/svn/forge/projects/labs/tim-scala-actors-2.6.1/">SVN repository</a> where you can fetch the Terracotta Integration Module (TIM) that I have implemented for Scala Actors. You can check it out anonymously by invoking:
 
-<pre>
+<pre name="code" class="scala">
 svn co http://svn.terracotta.org/svn/forge/projects/labs/tim-scala-actors-2.6.1/
 </pre>
 
@@ -33,7 +33,7 @@ When that is done, step into <code>tim-scala-actors-2.6.1/trunk</code> and invok
 
 Now, let's write a little <code>Cart</code> actor. This actor response to two different messages <code>AddItem(item)</code> and <code>Tick</code>. The former one adds an item to the <code>Cart</code> while the latter one triggers the <code>Cart</code> to print out its content (I'll let you know why it's called <code>Tick</code> in a second):
 
-<pre>
+<pre name="code" class="scala">
 // Messages
 case object Tick
 case class AddItem(item: String)
@@ -60,11 +60,11 @@ As you see the state is held by a Scala <code>var</code>, which holds onto a <co
 
 <h2>Configuration</h2>
 
-In order to cluster the <code>Cart</code> actor we have to write two things. First a hack, a simple configuration file in which declare which actors we want to cluster. This is something that later should be put into the regular <code>tc-config.xml</code> file, but for now we have to live with it. So let's create a file with one single line, stating the fully qualified name of the <code>Cart</code> actor; <pre> samples.Cart </pre> We can either name this file <code>clustered-scala-actors.conf</code> and put it in root directory of the application or name it whatever we want and feed it to Terracotta using the <code>-Dclustered.scala.actors.config=[path to the file]</code> JVM property. Second, we have to write the regular Terracotta configuration file (tc-config.xml). Here we essentially have to define three things; the TIM for Scala Actors, locks to guard our mutable state and finally which classes should be included for bytecode instrumentation.
+In order to cluster the <code>Cart</code> actor we have to write two things. First a hack, a simple configuration file in which declare which actors we want to cluster. This is something that later should be put into the regular <code>tc-config.xml</code> file, but for now we have to live with it. So let's create a file with one single line, stating the fully qualified name of the <code>Cart</code> actor; <pre name="code" class="scala"> samples.Cart </pre> We can either name this file <code>clustered-scala-actors.conf</code> and put it in root directory of the application or name it whatever we want and feed it to Terracotta using the <code>-Dclustered.scala.actors.config=[path to the file]</code> JVM property. Second, we have to write the regular Terracotta configuration file (tc-config.xml). Here we essentially have to define three things; the TIM for Scala Actors, locks to guard our mutable state and finally which classes should be included for bytecode instrumentation.
 
 Starting with the TIM for Scala Actors. Here we define the version on the module as well as the URL to our Maven repository (in a short while we will put this jar in the Terracotta Maven repository and then you would not have to point out a local one).
 
-<pre>
+<pre name="code" class="scala">
 &lt;modules&gt;
  &lt;repository&gt;file:///Users/jonas/.m2/repository&lt;/repository&gt;
  &lt;module name="clustered-scala-actors-2.6.1" version="2.6.0.SNAPSHOT"/&gt;
@@ -73,7 +73,7 @@ Starting with the TIM for Scala Actors. Here we define the version on the module
 
 Now we have to define the locks, which in Terracotta, also marks the transaction boundaries. The <code>Cart</code> has one mutable field (the <code>var</code> named <code>items</code>) that we need to ensure is guarded correctly and has transactional semantics. For each var Scala generates a setter and a getter. The getter is named the same as the field while the getter has the name suffixed with <code>_$eq</code>. That gives us the following lock definition:
 
-<pre>
+<pre name="code" class="scala">
 &lt;locks&gt;
   &lt;named-lock&gt;
     &lt;lock-name&gt;cart_items_write&lt;/lock-name&gt;
@@ -94,7 +94,7 @@ It important to understand the TIM automatically clusters the Actor's mailbox, w
 
 Finally we have to define the classes that we need to include for instrumentation. This naturally includes our application classes, e.g. the classes that are using our <code>Cart</code> actor in one way or the other. Those are picked out by the pattern like: <code>'samples.*'</code>. We also have to include all the Scala runtime and library classes that we are referencing from the message is that we send. In our case that means the classes that are used to implement the <code>List</code> abstraction in Scala. Here is the full listing:
 
-<pre>
+<pre name="code" class="scala">
 &lt;instrumented-classes&gt;
  &lt;include&gt;
    &lt;class-expression&gt;samples.*&lt;/class-expression&gt;
@@ -117,7 +117,7 @@ I could have included these (and many more) classes in the TIM, but since Terrac
 
 Last but not least, we need to enable Terracotta in the Scala runtime (if you are planning to run the application in a Terracotta enabled application server, then you can skip this section - however I think it might still be useful to be able to try the application out in the Scala REPL). The simplest way of doing that is to do some minor changes to the <code>scala</code> command. First, let's step down into the <code>scala/bin</code> directory and make a copy of the <code>scala</code> command called <code>tc-scala</code>, then scroll down all the way to the bottom. As you can see it is just a wrapper around the regular <code>java</code> command, which makes things pretty easy for us. We start by defining some environmental variables (here showing my local settings):
 
-<pre>
+<pre name="code" class="scala">
 TC_SCALA_ACTORS_CONFIG_FILE=/Users/jonas/src/java/tc-forge/projects/tim-scala-actors-2.6.1/trunk/src/samples/resources/clustered-scala-actors.conf
 TC_CONFIG_FILE=/Users/jonas/src/java/tc-forge/projects/tim-scala-actors-2.6.1/trunk/src/samples/resources/tc-config.xml
 TC_INSTALL_DIR=/Users/jonas/src/java/tc/code/base/build/dist/terracotta-trunk-rev6814
@@ -127,7 +127,7 @@ TC_TIM_SCALA_ACTORS_JAR=/Users/jonas/.m2/repository/org/terracotta/modules/clust
 
 When these variables have been defined we can replace the existing invocation of <code>java</code> with the following:
 
-<pre>
+<pre name="code" class="scala">
 ${JAVACMD:=java} ${JAVA_OPTS:=-Xmx256M -Xms256M} \
  -Xbootclasspath/p:"$TC_BOOT_JAR" \
  -Dtc.install-root="$TC_INSTALL_DIR" \
@@ -144,7 +144,7 @@ ${JAVACMD:=java} ${JAVA_OPTS:=-Xmx256M -Xms256M} \
 
 Enough hacking. Now let's try it out. I think that the best way of learning new things in Scala is to use its REPL, so let's start that up, this time with Terracotta enabled. But before we do that we have to start up the Terracotta server by stepping into the bin directory in the Terracotta installation and invoke:
 
-<pre>
+<pre name="code" class="scala">
 $ ./start-tc-server.sh
 </pre>
 
@@ -152,7 +152,7 @@ $ ./start-tc-server.sh
 
 Now, we can start up the Terracotta enabled Scala REPL:
 
-<pre>
+<pre name="code" class="scala">
 $ tc-scala
 2008-01-25 07:42:11,643 INFO - Terracotta trunk-rev6814, as of 20080124-140101 (Revision 6814 by jonas@homer from trunk)
 2008-01-25 07:42:12,136 INFO - Configuration loaded from the file at '/Users/jonas/src/java/tc-forge/projects/tim-scala-actors-2.6.1/trunk/src/samples/resources/tc-config.xml'.
@@ -170,7 +170,7 @@ Here we can see that it has found and connected to the Terracotta server, found 
 
 Let's have some fun and start up another REPL in another terminal window. In each of these we do the following; import our classes, create a new <code>Cart</code> (Actor) and start up the Actor. 
 
-<pre>
+<pre name="code" class="scala">
 scala&gt; import samples._              
 import samples._
 
@@ -185,7 +185,7 @@ scala&gt;
 
 Now we have a distributed Actor just waiting to be fed with some messages. We don't want to make it disappointed so let's now add a bunch of bananas and apples to the <code>Cart</code>, and then feed it with a <code>Tick</code> message to make it print out the result:
 
-<pre>
+<pre name="code" class="scala">
 scala&gt; cart ! AddItem("bananas")
 
 scala&gt; cart ! AddItem("apples")
@@ -199,7 +199,7 @@ scala&gt;
 
 Ok, so far no news. But comes the moment of truth, let's take the other REPL and fire of a <code>Tick</code>:
 
-<pre>
+<pre name="code" class="scala">
 scala&gt; cart ! Tick
 
 scala&gt; Items: List(apples, bananas)
@@ -209,7 +209,7 @@ scala&gt;
 
 Yippee, it works. Now we can invoke the <code>ping</code> method to schedule a <code>Tick</code> (to print out status) every 5 seconds.
 
-<pre>
+<pre name="code" class="scala">
 scala&gt; cart.ping
 res2: java.util.concurrent.ScheduledFuture = java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask@3a4388
 
@@ -228,7 +228,7 @@ scala&gt; Items: List(football, apples, bananas)
 
 The Scala Actors TIM currently supports three different scopes; <code>instance</code>, <code>class</code> and <code>custom</code>. The scope is defined by appending a colon ':' and the type of scope after the FQN of the Actor in the <code>clustered-scala-actors.conf</code>. If no scope is defined then the Actor is assumed to have scope <code>instance</code>. For example: 
 
-<pre>
+<pre name="code" class="scala">
 com.biz.Foo:custom
 com.biz.Bar:class
 com.biz.Baz:instance  
@@ -237,7 +237,7 @@ com.biz.Bam
 
 The default scope named <code>instance</code> means that the Scala TIM is transparently intercepting the instantiation (f.e. <code>new Cart</code>) of all the Actors that you declare in the <code>clustered-scala-actors.conf</code> file. Each clustered Actor <strong>instance</strong> will have a unique identity across the cluster and each time this specific instance is created (f.e. when a new node joins the cluster) then the clustered instance with this specific identity will be handed out. The TIM distinguishes between actors of the same type but instantiated in different code paths. To take an example, let's create one object <code>ActorFactory</code> with one single method <code>create</code>: 
 
-<pre>
+<pre name="code" class="scala">
 object ActorFactory {
   def create: Actor = new MyActor
 }
@@ -245,7 +245,7 @@ object ActorFactory {
 
 If we now have two classes <code>Foo</code> and <code>Bar</code> as follows:
 
-<pre>
+<pre name="code" class="scala">
 class Foo {
   val actor = ActorFactory.create
 }
@@ -265,7 +265,7 @@ Finally we have the <code>custom</code> scope. Which, as it sounds, allows custo
 
 If you want more control over scope and life-cycle of a specific Actor then you can define it to have <code>custom</code> scope in the <code>clustered-scala-actors.conf</code> file and create a factory in which you bind each Actor to whatever scope you wish. But now you have to create some data structure that is holding on to your Actors in the factory and explicitly define it to be a root in the <code>tc-config.xml</code> file. The factory might look something like this:
 
-<pre>
+<pre name="code" class="scala">
 // Cart factory, allows mapping an instance to any ID
 object Cart {
   
@@ -286,7 +286,7 @@ object Cart {
 
 This means that we have to add some more configuration elements to our Terracotta configuration. First we need to add the root <code>samples.Cart$.instances</code> (<code>Cart$</code> is the name of Scala's compiled <code>Cart</code> companion object, all companion objects compiles to a class with the name of the original class suffixed with <code>$</code>):
 
-<pre>
+<pre name="code" class="scala">
 &lt;roots&gt;
   &lt;root&gt;
     &lt;field-name&gt;samples.Cart$.instances&lt;/field-name&gt;
@@ -296,7 +296,7 @@ This means that we have to add some more configuration elements to our Terracott
 
 Then we have to add locking for the <code>Cart.newInstance(..)</code> method and finally a whole bunch of new include statements for all the Scala types that are referenced by the <code>scala.collection.mutable.HashMap</code> that we used as root:
 
-<pre>
+<pre name="code" class="scala">
 ...  
 &lt;named-lock&gt;
   &lt;lock-name&gt;Cart_newInstance&lt;/lock-name&gt;
