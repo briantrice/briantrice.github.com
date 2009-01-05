@@ -15,7 +15,7 @@ In this second post in the <a href="http://jonasboner.com/2008/10/01/real-world-
 
 At <a href="http://www.triental.com/">Triental</a> we tried out three different strategies before settling for the one we are using now. The plan for this article is as follows; first explain in detail how we are doing DI now, and then briefly cover the other alternative strategies we have tried out.   
 
-<h3>Using the Cake Pattern</h3
+<h3>Using the Cake Pattern</h3>
 
 The current strategy we are using is based on the so-called Cake Pattern. This pattern is first explained in Martin Oderskys' paper <a href="http://lamp.epfl.ch/~odersky/papers/ScalableComponent.pdf">Scalable Component Abstractions</a> (which is an excellent paper that is highly recommended) as the way he and his team structured the Scala compiler. But rather than trying to explain the pattern and how it can be used to implement DI in plain English let's take a look at some (naive) sample code (loosely based on our production code). 
 
