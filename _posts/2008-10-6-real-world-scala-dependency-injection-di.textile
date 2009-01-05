@@ -226,6 +226,7 @@ Let's now take a look at some other ways of doing DI in Scala. This post is alre
 <strong>Using structural typing</strong>
 
 This technique using <a href="http://scala.sygneca.com/patterns/duck-typing-done-right">structural typing</a> was posted by Jamie Webb on the Scala User mailing list some time ago. I like this approach; elegant, immutable, type-safe.
+
 <pre name="code" class="scala">
 // =======================
 // service interfaces
