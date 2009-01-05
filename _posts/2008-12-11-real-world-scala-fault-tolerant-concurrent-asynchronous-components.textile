@@ -17,13 +17,13 @@ Actors can simplify concurrent programming and reasoning immensely and I believe
 
 For example, if we want to be able to pass a single message from one actor to the next we have to define two things.
 
-* A message with optional payload:
+A message with optional payload.
   
 <pre name="code" class="scala">
 case class MyMessage(payload: AnyRef)
 </pre>
 
-* A message dispatch matching loop (partial function) in the receiving actor:
+A message dispatch matching loop (partial function) in the receiving actor.
   
   
 <pre name="code" class="scala">
