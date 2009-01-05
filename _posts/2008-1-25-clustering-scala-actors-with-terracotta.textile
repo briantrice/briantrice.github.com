@@ -4,6 +4,9 @@ layout: post
 title: Clustering Scala Actors with Terracotta
 wordpress_url: http://jonasboner.com/2008/01/25/clustering-scala-actors-with-terracotta/
 ---
+<h1>
+Clustering Scala Actors with Terracotta
+</h1>
 <h2>Introduction</h2>
 
 A month ago I wrote an introductory post about <a href="http://lamp.epfl.ch/~phaller/actors.html">Scala Actors</a>: <a href="http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-actors/">HotSwap Code using Scala and Actors</a>. For you who don't know what it is I don't want to start by reading the previous post let's briefly recap what Actors are and what you can use them for.

@@ -4,6 +4,9 @@ layout: post
 title: "Real-World Scala: Introduction"
 wordpress_url: http://jonasboner.com/2008/10/01/real-world-scala-introduction/
 ---
+<h1>
+Real-World Scala: Introduction
+</h1>
 The last nine months I have been running my own business together with some friends (<a href="http://www.triental.com/">Triental AB</a>). We are building a product suite for private banking and wealth management with a focus on portfolio management, analysis and simulation. 
 
 One of the great things of being your own is that you get to choose whatever technology you like and think is best suitable for the job. The last years I have been studying and playing with Functional Programming (FP) in general and <a href="http://www.scala-lang.org/">Scala</a> in particular (among with Erlang, Clojure and Haskell). FP has been used successfully in the financial domain before (for example <a href="http://ocaml.janestcapital.com/">Jane Street Capital (OCaml)</a> and <a href="http://labs.businessobjects.com/cal/">Business Objects (CAL)</a>), and the work we do is heavily based on mathematics which maps excellent to the FP paradigm. 

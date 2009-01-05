@@ -4,6 +4,9 @@ layout: post
 title: Erlang-style Supervisor Module for Scala Actors
 wordpress_url: http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/
 ---
+<h1>
+Erlang-style Supervisor Module for Scala Actors
+</h1>
 In this post I will explain how you can build fault-tolerant systems using Scala Actors by arranging them in Supervisor hierarchies using a library for Scala Supervisors that I just released. 
 
 But first, let's recap what Actors are and what makes them useful. 

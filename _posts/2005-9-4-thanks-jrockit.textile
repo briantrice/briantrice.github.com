@@ -1,0 +1,24 @@
+--- 
+wordpress_id: 44
+layout: post
+title: Thanks JRockit
+wordpress_url: http://jonasboner.com/?p=44
+---
+<h1>
+Thanks JRockit
+</h1>
+I guess that most people have <a href="http://www.theserverside.com/news/thread.tss?thread_id=36073">not missed</a> that I am leaving <a href="http://bea.com/">BEA</a>. Yesterday was actually my last day as an BEA employee.
+
+I have had two great years at BEA.  It has been a great experience to work at the Java Runtime Products Group (JRPG), (JRPG is the group that implements the <a href="http://dev2dev.bea.com/jrockit/">JRockit JVM</a>), not everyone gets the opportunity to work among so many extremely talented and smart people, and that is something that I am very grateful for.  I have learned more in these two years that I had in my whole career.
+
+I am also grateful for that JRPG has believed in AOP and my vision, so much and that they have allowed me to work full-time for two years to materialize them. 
+
+During this two year period we (<a href="http://blogs.codehaus.org/people/avasseur/">Alexandre Vasseur</a> and myself) have had the opportunity to participate in writing three important chapters in this story for AOP in Java:
+
+1. <a href="http://www.theserverside.com/news/thread.tss?thread_id=32534">The release of AspectWerkz 2.0</a>
+2. <a href="http://www.theserverside.com/news/thread.tss?thread_id=31244">The merge of AspectWerkz and AspectJ</a>
+3. <a href="http://dev2dev.bea.com/pub/a/2005/08/jvm_aop_1.html">The support for AOP in the JRockit JVM</a> (thanks to Joakim Dahlstedt)
+
+It for sure has been a ride :-)
+
+Thanks JRockit.

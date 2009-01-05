@@ -1,0 +1,28 @@
+--- 
+wordpress_id: 83
+layout: post
+title: Highlights 2005
+wordpress_url: http://jonasboner.com/?p=83
+---
+<h1>
+Highlights 2005
+</h1>
+2005 has been a good year, both personally and professionally.
+
+Here is a summary of some of the highlights (in chronological order):
+<ul>
+	<li>Family trip to Vietnam for 6 weeks. Amazing and beutiful country, friendly people, interesting culture, delicious food etc.</li>
+	<li>The merge of AspectWerkz and AspectJ <a href="http://www.theserverside.com/news/thread.tss?thread_id=31244">is announced</a> .</li>
+	<li>Sara and I skiing powder in <a href="http://www.abisko.nu/vinter06/intro/index.asp">Abisko</a> (close to the pole circle) for 3 days - without kids! :-)</li>
+	<li>Family <a href="http://www.flickr.com/photos/jboner/sets/1574127/">trip to California</a> for 2 weeks.</li>
+	<li>Release of  the <a href="http://dev2dev.bea.com/pub/a/2005/08/jvm_aop_1.html">support for AOP in the JRockit JVM</a>.</li>
+	<li>Left <a href="http://bea.com/">BEA</a> and <a href="http://www.theserverside.com/news/thread.tss?thread_id=36073">joined Terracotta</a>.</li>
+	<li><a href="http://static.flickr.com/20/73268814_9fd457e473_o.jpg">Jacob</a> turned 2. Amazing little guy, that has gone from hardly speaking at all to someone talking so much that you hardly get anything said (or done), in just 4 months...</li>
+	<li>Our family got a US VISA (we are moving over in mid Jan 2006).</li>
+	<li>The <a href="http://jonasboner.com/2005/12/22/aspectj-5-final-is-shipped/">release of AspectJ 5</a>.</li>
+</ul>
+Here is a collage over the family highlights 2005, in chronological order.
+
+<a href="http://static.flickr.com/43/79729827_5c4dcbd242_o.jpg"><img alt="Highlights 2005" src="http://static.flickr.com/43/79729827_5c4dcbd242_m.jpg" /></a>
+
+Click on the image for a full-sized view.

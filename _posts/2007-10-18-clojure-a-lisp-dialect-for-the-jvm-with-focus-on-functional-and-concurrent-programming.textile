@@ -4,6 +4,9 @@ layout: post
 title: "Clojure: a Lisp-dialect for the JVM - with focus on Functional and Concurrent Programming"
 wordpress_url: http://jonasboner.com/2007/10/18/clojure-a-lisp-dialect-for-the-jvm-with-focus-on-functional-and-concurrent-programming/
 ---
+<h1>
+Clojure: a Lisp-dialect for the JVM - with focus on Functional and Concurrent Programming
+</h1>
 Yesterday, Rich Hickey announced the birth of <a href="http://clojure.sourceforge.net/">Clojure</a> - a lisp dialect for the JVM. 
 
 After just a brief look, Clojure is perhaps the most interesting language in the (now fairly large) family of 'dynamic languages for the JVM'. It brings the power of Lisp to the JVM but have made some design decisions that in some ways makes it more interesting than <a href="http://en.wikipedia.org/wiki/Common_lisp">ANSI Common Lisp</a>. Here are some of the things that I find particularly interesting:

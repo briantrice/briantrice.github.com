@@ -4,6 +4,9 @@ layout: post
 title: "Real-World Scala: Dependency Injection (DI) "
 wordpress_url: http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di/
 ---
+<h1>
+Real-World Scala: Dependency Injection (DI) 
+</h1>
 <em>Update: Corrected typo in the Cake Pattern version of the last example.</em>
 <em>Update: Added a version of the last example using the Cake Pattern for easier 
 comparison (see end of post).</em>

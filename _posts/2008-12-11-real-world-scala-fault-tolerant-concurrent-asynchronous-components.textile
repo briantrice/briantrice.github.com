@@ -4,6 +4,9 @@ layout: post
 title: "Real-World Scala: Fault-tolerant Concurrent Asynchronous Components"
 wordpress_url: http://jonasboner.com/?p=169
 ---
+<h1>
+Real-World Scala: Fault-tolerant Concurrent Asynchronous Components
+</h1>
 <strong>Introduction</strong>
 
 In a <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/">previous post</a> I wrote about <a href="http://github.com/jboner/scala-otp/tree/master">Scala OTP</a>, an initial attempt to bring the power or <a href="http://www.erlang.se/doc/index.shtml">Erlang OTP</a>, in particular its supervisor hierarchies and generic server to the <a href="http://www.scala-lang.org/node/242">Scala Actors library</a>. OTP is one of the key parts in the Erlang success story and is in my opinion a requirement for Scala Actors to succeed in the real world. 

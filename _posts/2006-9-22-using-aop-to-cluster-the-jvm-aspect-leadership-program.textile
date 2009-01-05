@@ -1,0 +1,20 @@
+--- 
+wordpress_id: 118
+layout: post
+title: "Using AOP to Cluster the JVM: Aspect Leadership Program"
+wordpress_url: http://jonasboner.com/2006/09/22/using-aop-to-cluster-the-jvm-aspect-leadership-program/
+---
+<h1>
+Using AOP to Cluster the JVM: Aspect Leadership Program
+</h1>
+
+If you are interested in knowing more about AOP and how it can be used to simplify distributed computing or want to know more about the inner workings of <a href="http://terracottatech.com/">Terrocotta's</a> Distributed Shared Object (DSO) technology, then you should sign up for the <a href="http://aspectleadershipprogram.net/index.php">Aspect Leadership Program</a> in Vancouver, March 14 & 15 2007. 
+
+I will be giving a talk on <a href="http://aspectleadershipprogram.net/program.php#Cluster%20JVM">Using AOP to Cluster the JVM</a> and that is just one out of <a href="http://aspectleadershipprogram.net/program.php">many talks</a> during these two days:
+<blockquote>
+In just two days, the Aspect Leadership Program (ALP) starts with an introduction to AOP, and proceeds through key points about the technology and tools, enterprise applications, case studies, refactoring existing applications, future trends and other topics.
+
+The discussion-oriented coordinated presentations by world-leading experts make it possible to cover so much ground in just two days. Having seven of the world's leading experts presenting means that you can get different perspectives on the key issues all in one setting. 
+</blockquote>
+
+Registration has already <a href="http://aspectleadershipprogram.net/registration.php">started</a>. Hope to see you there.

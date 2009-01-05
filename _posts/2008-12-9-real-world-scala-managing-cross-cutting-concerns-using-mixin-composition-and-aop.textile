@@ -4,6 +4,9 @@ layout: post
 title: "Real-World Scala: Managing Cross-Cutting Concerns using Mixin Composition and AOP"
 wordpress_url: http://jonasboner.com/?p=162
 ---
+<h1>
+Real-World Scala: Managing Cross-Cutting Concerns using Mixin Composition and AOP
+</h1>
 In a <a href="http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di/">previous post</a> I showed you how you could use mixin composition and self type annotations to enable Dependency Injection (DI). Mixin composition is an extremely powerful tool that you can utilize in many different ways to enable modular and reusable code.  In this post I'll try to show you how you can use it to solve the problem of crosscutting concerns using AOP/interceptor-style composition.
 
 <strong>Crosscutting concerns and AOP</strong>

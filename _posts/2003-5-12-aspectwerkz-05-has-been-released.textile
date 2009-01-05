@@ -1,0 +1,73 @@
+--- 
+wordpress_id: 7
+layout: post
+title: AspectWerkz 0.5 has been released
+wordpress_url: http://jonasboner.com/?p=7
+---
+<h1>
+AspectWerkz 0.5 has been released
+</h1>
+The AspectWerkz 0.5 release is a huge improvement compared to previous versions. Apart from many bug fixes it is also packed with new features. 
+<p/>
+You can download the new release from the <a href="http://aspectwerkz.codehaus.org/releases.html">releases page</a>.
+<p/>
+New features:
+  <ul>
+                        <li>
+                            Caller side pointcuts. I.e. the possibility to advise a
+                            method invocation (caller side) apart from method
+                            execution (callee side).
+                        </li>
+                        <li>
+                            Fine-grained pattern language for picking out pointcuts.
+                            It is now possible to pick out method pointcuts by method name,
+                            parameter types and return type as well as field pointcuts
+                            by field name and field type. All these support regular
+                            expressions.
+                        </li>
+                        <li>
+                            Runtime attributes for advices (method/field/throws).
+                            I.e. add meta-data to your methods/field/classes as
+                            JavaDoc tags which are picked up by the weaver and
+                            used as rule set when doing the transformations.
+                        </li>
+                        <li>
+                            Class selectors for aspects. I.e. pick out classes using
+                            regular expressions.
+                        </li>
+                        <li>
+                            Advising of static fields.
+                        </li>
+                        <li>
+                            Parameters to advices. The possibility to pass
+                            parameters to advices through the XML definition.
+                        </li>
+                        <li>
+                            Advice stacks. The possibility to define stacks/chains
+                            of advices that can be reused throughout the XML definition.
+                        </li>
+                        <li>
+                            MethodAdvice has been renamed to AroundAdvice and the
+                            FieldAdvices has been renamed to PreAdvice and PostAdvice.
+                        </li>
+                        <li>
+                            Creation and registration of new advices at runtime
+                            (in previous releases you could only add/remove/reorder
+                            existing advices).
+                        </li>
+                        <li>
+                            Ant task for offline post-processing.
+                        </li>
+                        <li>
+                            More flexible startup and definition handling process.
+                        </li>
+                        <li>
+                            Multiple pattern declarations for pointcuts.
+                        </li>
+                        <li>
+                            More documentation and examples.
+                        </li>
+                        <li>
+                            Many many bugfixes.
+                        </li>
+                    </ul>

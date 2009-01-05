@@ -1,0 +1,14 @@
+--- 
+wordpress_id: 42
+layout: post
+title: util.concurrent on steroids
+wordpress_url: http://jonasboner.com/?p=42
+---
+<h1>
+util.concurrent on steroids
+</h1>
+Steve has written a <a href="http://blog.terracottatech.com/archive/2005/08/fun_with_dso_an.html#more">nice article</a> on how you can coordinate threads in a distributed application, transparently, and with very little effort. 
+
+He does this simply by sharing an instance of a <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/CyclicBarrier.html">CyclicBarrier</a>, a class in Doug Lea's excellent <a href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html">util.concurrent package</a>(now included in JDK 5.0), across a cluster  Using <a href="http://www.terracottatech.com/product/dso.html">Distributed Shared Objects </a>(DSO). 
+
+It really shows the power of DSO in action, by solving an extremely tricky problem in almost no time and no code.

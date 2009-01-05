@@ -1,0 +1,14 @@
+--- 
+wordpress_id: 85
+layout: post
+title: Terracotta DSO Explained
+wordpress_url: http://jonasboner.com/?p=85
+---
+<h1>
+Terracotta DSO Explained
+</h1>
+Along with the 1.5 release of the <a href="http://www.terracottatech.com/product_overview.shtml">Terracotta Server</a> (shipped today), we have new web site along with a really good flash demo explaining our DSO (Distributed Shared Objects) technology.
+
+It takes you through the concepts and ideas behind the technology as well as shows you a couple of live demos, definitely worth the 5 minutes it takes to watch it.
+
+Just browse to the <a href="http://www.terracottatech.com/index.shtml">web site</a> and click on [View Our Demo].
