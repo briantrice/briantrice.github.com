@@ -15,7 +15,8 @@ Let's start with some terminology and definitions. A <em>pointcut language</em> 
 Sounds complicated? It's actually pretty simple.  
 
 Let's try a little example. You have an instance of a class <code>Foo</code> and an instance of a class <code>Bar</code>. The class <code>Bar</code> has a method with the signature <code>void setFoo(Foo foo)</code> and the class <code>Foo</code> has some other method that is invoking this method in <code>Bar</code>. E.g. something like this:
-<pre>
+  
+<pre name="code" class="java">
 class Bar {
   Foo foo;
   void setFoo(Foo f) {
@@ -24,7 +25,7 @@ class Bar {
 }
 </pre>
 
-<pre>
+<pre name="code" class="java">
 class Foo {
   Bar bar = new Bar();
   
@@ -38,7 +39,7 @@ Then the point where <code>setFoo(..)</code> is invoked from the class <code>Foo
 
 If we now want to pick out this point in order to do something with it (apply an advice or interceptor to it or something else), then we can create a <em>pointcut</em> using a <em>pointcut language</em>. In this particular case we could create a <em>pointcut</em> defined like this:
 
-<pre>
+<pre name="code" class="java">
 call(void Bar.setFoo(Foo))
 </pre>
 
@@ -49,7 +50,8 @@ Since just working with one <em>join point</em> at time is fairly useless, we ne
 Luckily, most <em>pointcut languages</em> supports using patterns to write more expressive, generic or specific, <em>pointcut</em> expressions.
 
 For example, you can use patterns to pick out the call to any method that starts with <em>set</em> in <code>Bar</code> using this <em>pointcut</em>:
-<pre>
+  
+<pre name="code" class="java">
 call(* Bar.set*(..))
 </pre>
 
@@ -97,13 +99,13 @@ So, all this sounds promising, but as we will see later, you have to be aware of
 
 Ramnivas Laddad has written an <a href="http://www-128.ibm.com/developerworks/java/library/j-aopwork4/">interesting article</a> on metadata and pointcuts, where he views metadata as being <em>multi-dimensional signatures</em>. For example (from the article), a method with the following signature suffers from <em>signature-tangling</em>:
 
-<pre>
+<pre name="code" class="java">
 public void transactional_authorized_credit(float amount);
 </pre>
 
 This method's signature is tangled since it is trying to capture all its roles in it's signature, e.g. name. In this case the use of metadata can help to untangle this signature by defining the method like this:
 
-<pre>
+<pre name="code" class="java">
 @Transactional 
 @Authorized
 public void credit(float amount);
@@ -157,17 +159,29 @@ My proposal is that you should try as much as possible to to avoid the use of pa
 
 <ul>
 	<li><strong>Types</strong> - only fully qualified names, names that are part of the <em>Ubiquitous Language</em> your team is using. 
-
-For example, <code>within(com.biz.domain.Account)</code> or <code>target(com.biz.domain.Customer)</code> (<em>AspectJ</em> allows you to use regular Java imports, so you can write <code>within(Account)</code> etc.). 
+For example, 
+<code>within(com.biz.domain.Account)</code> or 
+<code>target(com.biz.domain.Customer)</code> (<em>AspectJ</em> 
+allows you to use regular Java imports, so you can write 
+<code>within(Account)</code> etc.). 
 </li>
 
-	<li><strong>Metadata</strong> - only annotations that are part of the <em>Ubiquitous Language</em> your team is using.</li> 
+<li><strong>Metadata</strong> - only annotations that are part of the <em>Ubiquitous Language</em> your team is using.</li> 
+For example, 
+<code>call(@AccountStateChange * *.*(..))</code>, 
+<code>execution(@Idempotent * *.(..))</code>, 
+<code>@annotation(BillingOperation)</code>, 
+<code>@this(DomainObject)</code>
+or whatever makes sense in your model. 
 
-For example, <code>call(@AccountStateChange * *.*(..))</code>, <code>execution(@Idempotent * *.(..))</code>, <code>@annotation(BillingOperation)</code>, <code>@this(DomainObject)</code> or whatever makes sense in your model. 
-
-	<li><strong>Package patterns</strong> - should be used only for narrowing down scope. 
-
-For example <code>within(com.biz..)</code> etc. This means that <code>within(com.biz..)</code> is ok, but not <code>within(com.*.foo.FooBar)</code>, <code>within(com.biz.Foo*)</code> or <code>within(com.biz.*Bar)</code></li>
+<li><strong>Package patterns</strong> - should be used only for narrowing down scope. 
+For example 
+<code>within(com.biz..)</code> 
+etc. This means that 
+<code>within(com.biz..)</code> is ok, but not 
+<code>within(com.*.foo.FooBar)</code>, 
+<code>within(com.biz.Foo*)</code> or 
+<code>within(com.biz.*Bar)</code></li>
 
 </ul>
   

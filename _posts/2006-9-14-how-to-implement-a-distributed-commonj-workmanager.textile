@@ -28,7 +28,7 @@ We will then use <a href="http://www.terracottatech.com/terracotta_spring.shtml"
 
 Here is how we could implement the work manager bean:
 
-<pre>
+<pre name="code" class="java">
 public class MyWorkManager implements WorkManager { 
 
   // The Work Queue bean, is injected by Spring
@@ -97,7 +97,7 @@ The <code>MyWorkManager</code> bean schedules work by adding work to the <code>W
 
 The work queue can be implemented like this:
 
-</pre><pre>
+</pre><pre name="code" class="java">
 public class WorkQueue {
   private final BlockingQueue m_workQueue;
 
@@ -136,7 +136,7 @@ Finally, we have the <code>Worker</code> bean. This bean uses a thread pool to s
 
 This is what a worker bean implementation can look like. As you can see we choose to make use of the <code>Executor</code> thread pool implementation in the <code>java.util.concurrent</code> package:
 
-<pre>
+<pre name="code" class="java">
 public class Worker {
 
   private transient final WorkQueue  m_queue;
@@ -174,7 +174,7 @@ public class Worker {
 
 These three beans can now be wired up by the <em>Spring</em> bean config file:
 
-<pre>
+<pre name="code" class="java">
 &lt;beans&gt;
   &lt;!-- workManager is prototype - not shared --&gt;
   &lt;bean id="workManager"
@@ -205,7 +205,7 @@ Now comes the hard part right? Well...no.
 
 It turns out that in order to turn this implementation into a distributed <code>WorkManager</code>, all we have to do is to create a <em>Terracotta</em> configuration file in which we declare the <em>Spring</em> beans that we want to share across the cluster:
 
-<pre>     
+<pre name="code" class="java">     
 ...
 &lt;spring&gt;
   &lt;jee-application name="webAppName"&gt;
@@ -232,7 +232,7 @@ Now we have a fully distributed, multi-JVM <em>CommonJ WorkManager</em>.
 
 Using the distributed work manager is now simply a matter of getting the bean from the application context and invoke <code>schedule(..)</code>:
 
-<pre>
+<pre name="code" class="java">
 ApplicationContext ctx = 
     new ClassPathXmlApplicationContext("*/work-manager.xml");
 
@@ -259,7 +259,7 @@ workManager.waitForAll(pendingWork, WorkManager.INDEFINITE);
 
 To start up a <code>Worker</code> you simply have to get the <code>Worker</code> bean from the application context and invoke <code>start()</code>: 
 
-</pre><pre>
+</pre><pre name="code" class="java">
 ApplicationContext ctx = 
     new ClassPathXmlApplicationContext("*/work-manager.xml");
 

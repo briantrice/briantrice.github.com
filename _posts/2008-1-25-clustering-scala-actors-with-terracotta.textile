@@ -65,27 +65,27 @@ In order to cluster the <code>Cart</code> actor we have to write two things. Fir
 Starting with the TIM for Scala Actors. Here we define the version on the module as well as the URL to our Maven repository (in a short while we will put this jar in the Terracotta Maven repository and then you would not have to point out a local one).
 
 <pre name="code" class="scala">
-&lt;modules&gt;
- &lt;repository&gt;file:///Users/jonas/.m2/repository&lt;/repository&gt;
- &lt;module name="clustered-scala-actors-2.6.1" version="2.6.0.SNAPSHOT"/&gt;
-&lt;/modules&gt;
+<modules>
+ <repository>file:///Users/jonas/.m2/repository</repository>
+ <module name="clustered-scala-actors-2.6.1" version="2.6.0.SNAPSHOT"/>
+</modules>
 </pre>
 
 Now we have to define the locks, which in Terracotta, also marks the transaction boundaries. The <code>Cart</code> has one mutable field (the <code>var</code> named <code>items</code>) that we need to ensure is guarded correctly and has transactional semantics. For each var Scala generates a setter and a getter. The getter is named the same as the field while the getter has the name suffixed with <code>_$eq</code>. That gives us the following lock definition:
 
 <pre name="code" class="scala">
-&lt;locks&gt;
-  &lt;named-lock&gt;
-    &lt;lock-name&gt;cart_items_write&lt;/lock-name&gt;
-    &lt;lock-level&gt;write&lt;/lock-level&gt;
-    &lt;method-expression&gt;* samples.Cart.items_$eq(..)&lt;/method-expression&gt;
-  &lt;/named-lock&gt;
-  &lt;named-lock&gt;
-    &lt;lock-name&gt;cart_items_read&lt;/lock-name&gt;
-    &lt;lock-level&gt;read&lt;/lock-level&gt;
-    &lt;method-expression&gt;* samples.Cart.items()&lt;/method-expression&gt;
-  &lt;/named-lock&gt;
-&lt;/locks&gt;
+<locks>
+  <named-lock>
+    <lock-name>cart_items_write</lock-name>
+    <lock-level>write</lock-level>
+    <method-expression>* samples.Cart.items_$eq(..)</method-expression>
+  </named-lock>
+  <named-lock>
+    <lock-name>cart_items_read</lock-name>
+    <lock-level>read</lock-level>
+    <method-expression>* samples.Cart.items()</method-expression>
+  </named-lock>
+</locks>
 </pre>
 
 We have to define a pair like this for each mutable <strong>user defined</strong> field in a clustered actor (not the standard one's that are common for all Scala Actors, those are automatically defined). 
@@ -95,20 +95,20 @@ It important to understand the TIM automatically clusters the Actor's mailbox, w
 Finally we have to define the classes that we need to include for instrumentation. This naturally includes our application classes, e.g. the classes that are using our <code>Cart</code> actor in one way or the other. Those are picked out by the pattern like: <code>'samples.*'</code>. We also have to include all the Scala runtime and library classes that we are referencing from the message is that we send. In our case that means the classes that are used to implement the <code>List</code> abstraction in Scala. Here is the full listing:
 
 <pre name="code" class="scala">
-&lt;instrumented-classes&gt;
- &lt;include&gt;
-   &lt;class-expression&gt;samples.*&lt;/class-expression&gt;
- &lt;/include&gt;
- &lt;include&gt;
-   &lt;class-expression&gt;scala.List&lt;/class-expression&gt;
- &lt;/include&gt;
- &lt;include&gt;
-   &lt;class-expression&gt;scala.$colon$colon&lt;/class-expression&gt;
- &lt;/include&gt;
- &lt;include&gt;
-   &lt;class-expression&gt;scala.Nil$&lt;/class-expression&gt;
- &lt;/include&gt;
-&lt;/instrumented-classes&gt;
+<instrumented-classes>
+ <include>
+   <class-expression>samples.*</class-expression>
+ </include>
+ <include>
+   <class-expression>scala.List</class-expression>
+ </include>
+ <include>
+   <class-expression>scala.$colon$colon</class-expression>
+ </include>
+ <include>
+   <class-expression>scala.Nil$</class-expression>
+ </include>
+</instrumented-classes>
 </pre>
 
 I could have included these (and many more) classes in the TIM, but since Terracotta adds a tiny bit of overhead to each class that it instruments I took the decision that it would be better to let the user explicitly define the classes that needs to be instrumented and leave the other ones alone. Since you can pretty much put any valid Scala data or abstraction in an actor message, it is very likely that you will have to declare some includes, else Terracotta will throw an exception (which is expected) with a message listing the XML snippet that you have to put in the tc-config.xml file. So don't panic if things blow up. 
@@ -163,7 +163,7 @@ Welcome to Scala version 2.6.0-final.
 Type in expressions to have them evaluated.
 Type :help for more information.
 
-scala&gt;
+scala>
 </pre>
 
 Here we can see that it has found and connected to the Terracotta server, found our <code>clustered-scala-actors.conf</code> config file and configured clustering for one Scala Actor; <code>samples.Cart</code>.
@@ -171,55 +171,55 @@ Here we can see that it has found and connected to the Terracotta server, found 
 Let's have some fun and start up another REPL in another terminal window. In each of these we do the following; import our classes, create a new <code>Cart</code> (Actor) and start up the Actor. 
 
 <pre name="code" class="scala">
-scala&gt; import samples._              
+scala> import samples._              
 import samples._
 
-scala&gt; val cart = new Cart
+scala> val cart = new Cart
 cart: samples.Cart = samples.Cart@81af82
 
-scala&gt; cart.start
+scala> cart.start
 res0: scala.actors.Actor = samples.Cart@81af82
 
-scala&gt; 
+scala> 
 </pre>
 
 Now we have a distributed Actor just waiting to be fed with some messages. We don't want to make it disappointed so let's now add a bunch of bananas and apples to the <code>Cart</code>, and then feed it with a <code>Tick</code> message to make it print out the result:
 
 <pre name="code" class="scala">
-scala&gt; cart ! AddItem("bananas")
+scala> cart ! AddItem("bananas")
 
-scala&gt; cart ! AddItem("apples")
+scala> cart ! AddItem("apples")
 
-scala&gt; cart ! Tick
+scala> cart ! Tick
 
-scala&gt; Items: List(apples, bananas)
+scala> Items: List(apples, bananas)
 
-scala&gt; 
+scala> 
 </pre>
 
 Ok, so far no news. But comes the moment of truth, let's take the other REPL and fire of a <code>Tick</code>:
 
 <pre name="code" class="scala">
-scala&gt; cart ! Tick
+scala> cart ! Tick
 
-scala&gt; Items: List(apples, bananas)
+scala> Items: List(apples, bananas)
 
-scala&gt; 
+scala> 
 </pre>
 
 Yippee, it works. Now we can invoke the <code>ping</code> method to schedule a <code>Tick</code> (to print out status) every 5 seconds.
 
 <pre name="code" class="scala">
-scala&gt; cart.ping
+scala> cart.ping
 res2: java.util.concurrent.ScheduledFuture = java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask@3a4388
 
-scala&gt; Items: List(apples, bananas)
+scala> Items: List(apples, bananas)
 
-scala&gt; Items: List(apples, bananas)
+scala> Items: List(apples, bananas)
 
-scala&gt; cart ! AddItem("football")
+scala> cart ! AddItem("football")
 
-scala&gt; Items: List(football, apples, bananas)
+scala> Items: List(football, apples, bananas)
 
 ...
 </pre>
@@ -287,37 +287,37 @@ object Cart {
 This means that we have to add some more configuration elements to our Terracotta configuration. First we need to add the root <code>samples.Cart$.instances</code> (<code>Cart$</code> is the name of Scala's compiled <code>Cart</code> companion object, all companion objects compiles to a class with the name of the original class suffixed with <code>$</code>):
 
 <pre name="code" class="scala">
-&lt;roots&gt;
-  &lt;root&gt;
-    &lt;field-name&gt;samples.Cart$.instances&lt;/field-name&gt;
-  &lt;/root&gt;
-&lt;/roots&gt;
+<roots>
+  <root>
+    <field-name>samples.Cart$.instances</field-name>
+  </root>
+</roots>
 </pre>
 
 Then we have to add locking for the <code>Cart.newInstance(..)</code> method and finally a whole bunch of new include statements for all the Scala types that are referenced by the <code>scala.collection.mutable.HashMap</code> that we used as root:
 
 <pre name="code" class="scala">
 ...  
-&lt;named-lock&gt;
-  &lt;lock-name&gt;Cart_newInstance&lt;/lock-name&gt;
-  &lt;lock-level&gt;write&lt;/lock-level&gt;
-  &lt;method-expression&gt;* samples.Cart$.newInstance(..)&lt;/method-expression&gt;
-&lt;/named-lock&gt;
+<named-lock>
+  <lock-name>Cart_newInstance</lock-name>
+  <lock-level>write</lock-level>
+  <method-expression>* samples.Cart$.newInstance(..)</method-expression>
+</named-lock>
 
 ...
           
-&lt;include&gt;
-  &lt;class-expression&gt;scala.collection.mutable.HashMap&lt;/class-expression&gt;
-&lt;/include&gt;
-&lt;include&gt;
-  &lt;class-expression&gt;scala.runtime.BoxedAnyArray&lt;/class-expression&gt;
-&lt;/include&gt;
-&lt;include&gt;
-  &lt;class-expression&gt;scala.runtime.BoxedArray&lt;/class-expression&gt;
-&lt;/include&gt;
-&lt;include&gt;
-  &lt;class-expression&gt;scala.collection.mutable.DefaultEntry&lt;/class-expression&gt;
-&lt;/include&gt;
+<include>
+  <class-expression>scala.collection.mutable.HashMap</class-expression>
+</include>
+<include>
+  <class-expression>scala.runtime.BoxedAnyArray</class-expression>
+</include>
+<include>
+  <class-expression>scala.runtime.BoxedArray</class-expression>
+</include>
+<include>
+  <class-expression>scala.collection.mutable.DefaultEntry</class-expression>
+</include>
   
 ...
 </pre>

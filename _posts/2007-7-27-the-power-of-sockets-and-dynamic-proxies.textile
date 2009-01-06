@@ -31,7 +31,7 @@ This simple unit test is testing (and highlights) two basic features.
 <li>Let the server create a proxy and send it to the client which uses it.</li>
 </ul>
 
-<pre>
+<pre name="code" class="java">
 public void testSimpleProxy() {
 
     // 1)
@@ -72,7 +72,7 @@ That was easy. So much for the client side.
 
 How can we now create the server that serves these two proxies? The only thing we have to do is to create a <code>RemoteProxyServer</code> by passing in the class loader that we want to use to instantiate our proxied objects as well as an implementation of the <code>Invoker</code> interface (which has one single method called <code>invoke</code>), an interface that gives you the possibility to invoke methods on your proxied objects any way you want. This example simply shows the most basic way of doing it: 
 
-<pre>
+<pre name="code" class="java">
 // create a remote proxy server with a simple Invoker impl
 RemoteProxyServer remoteProxyServer = new RemoteProxyServer(
         classLoader,
@@ -112,7 +112,7 @@ Let's now dive into the implementation of the server a little bit. When we invok
 
 Here are some code excerpts, highlighting the algorithm:
 
-<pre>
+<pre name="code" class="java">
 public void run() {
     try {
         m_socket.setTcpNoDelay(true);
@@ -179,7 +179,7 @@ If the client asks for a server created proxy, then the server would create it l
 
 This is pretty much the whole server. But if you're still with me, I'm sure you're eager to know what the <code>RemoteProxy</code> looks like. Well, here are some of the more interesting parts of its internals:
 
-<pre>
+<pre name="code" class="java">
 public class RemoteProxy implements InvocationHandler, Serializable {
 
     ... // constructors and field declarations are omitted

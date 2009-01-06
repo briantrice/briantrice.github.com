@@ -19,7 +19,7 @@ But let me now propose an, in some ways, new and radical solution: <strong>Inver
 
 <ol>
 <li>
-Let the in-memory cache become the master SoR -- which is persisted in memory using an appliances-like infrastructure service -- like <a href="http://terracotta.org">Terracottaâ€™s</a> <a href="http://www.ddj.com/dept/java/199703478">Network-Attached Memory (NAM)</a>. 
+Let the in-memory cache become the master SoR -- which is persisted in memory using an appliances-like infrastructure service -- like <a href="http://terracotta.org">Terracotta's</a> <a href="http://www.ddj.com/dept/java/199703478">Network-Attached Memory (NAM)</a>. 
 </li>
 
 <li>

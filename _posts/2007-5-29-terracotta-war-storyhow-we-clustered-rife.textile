@@ -17,26 +17,26 @@ RIFEâ€™s continuations aims to make support for continuations in pure Java 
 
 Internally RIFE is storing its continuations in a regular <code>java.util.HashMap</code>:
 
-<pre>
+<pre name="code" class="java">
 private final Map mContexts = new HashMap();
 </pre>
  
 This means that this map is a data structure that holds on to all the state that we want to cluster, something that makes it a perfect fit for becoming a Terracotta 'root', e.g. the top-level object in a shared/clustered object graph. So, we simply had to define the fully qualified name of the field that held on to this map as the 'root' in our Terracotta configuration:
 
-<pre>
-&lt;root&gt;
-  &lt;field-name&gt;
+<pre name="code" class="java">
+<root>
+  <field-name>
     com.uwyn.rife.continuations.ContinuationManager.mContexts
-  &lt;/field-name&gt;
-  &lt;root-name&gt;mContexts&lt;/root-name&gt;
-&lt;/root&gt;
+  </field-name>
+  <root-name>mContexts</root-name>
+</root>
 </pre>
 
 That was quite simple. However, initially RIFE was designed to only access this map using a single thread, which allowed it (for performance reasons) to choose to not make it thread safe. Unfortunately, this is an assumption that does not hold when we are clustering the map with Terracotta since then you will have, not multi-threaded, but concurrent access from multiple JVMs. The promise of Terracotta is that it maintains the semantics of Java across the cluster which means that we need to guard our data correctly for concurrent access using Javaâ€™s concurrency primitives or abstractions, primitives and abstractions that Terracotta will maintain the semantics of across the cluster. In short, Terracotta requires you to write thread-safe code. What this boiled down to in practice was that we had to make the access and modifications to the map itself and all the continuations in the map guarded (using synchronized blocks). The simplest option would have been to swap the regular <code>HashMap</code> to a <code>java.util.concurrent.ConcurrentHashMap</code>, but since RIFE needs backward compatibility with Java 1.4, that was not an option. So after making the code thread-safe we could see the continuations effectively clustered by Terracotta. (Some readers might see that what we have actually done here is a simple way of cross-JVM thread migration.)
 
 This works fine if all the clustered classes are loaded through Java's system class loader (or the boot or ext class loaders) since that is a class loader that Terracotta knows about and can identify uniquely. But unfortunately, this is not the case if we are running in an application server since they are normally using a more or less complex hierarchy of class loaders that are specific to the application server itself. The reason why Terracotta needs to be able to uniquely define a class loader is that it needs a way of, at any point in time and on an arbitrary cluster-node, retrieve the class loader instance that has loaded a specific class in order to maintain object identity across the cluster. In the case of RIFE we had two class loaders - <code>EngineClassLoader</code> and <code>TemplateClassLoader</code> - that we had to enhance and make implement the <code>NamedClassLoader</code> interface in Terracotta: 
 
-<pre>
+<pre name="code" class="java">
 public interface NamedClassLoader {
   public static final String CLASS = 
       "com/tc/object/loaders/NamedClassLoader";
@@ -48,9 +48,8 @@ public interface NamedClassLoader {
 
 We also had to add code for the RIFE class loaders to register themselves in the Terracotta runtime:
 
-<pre>
+<pre name="code" class="java">
 public EngineClassLoader(ClassLoader parent) {
-  â€¦
   com.tc.object.bytecode.hook.impl.ClassProcessorHelper.
       registerGlobalLoader(this);
 }
@@ -62,7 +61,7 @@ This extreme dynamicity imposed a lot of interesting challenges in terms of clus
 
 The solution turned out to be quite simple. First we created an interface called <code>BytecodeProvider</code>: 
 
-<pre>
+<pre name="code" class="java">
 public interface BytecodeProvider {
   /**
    * Returns the bytecode for a class with the name specified.
@@ -78,7 +77,7 @@ public interface BytecodeProvider {
 
 Then we modified RIFE's <code>TemplateClassLoader</code>, which is the class that generates the templates in RIFE, to implement this interface:
 
-<pre>â€¦
+<pre name="code" class="java">â€¦
 public byte[] __tc_getBytecodeForClass(final String className) {
   if (null == mBytecodeRepository) {
     return null;
@@ -92,7 +91,7 @@ public byte[] __tc_getBytecodeForClass(final String className) {
 
 We also added a code snippet in the the Terracotta runtime to - in the case of a <code>ClassNotFoundException</code> - check if the class loader it tried to use to load a specific class implements this interface, and if it does use the <code>__tc_getBytecodeForClass(String className)</code> method to retrieve the bytes for the class, load it and go on from there:
 
-<pre>â€¦
+<pre name="code" class="java">â€¦
 try {
   return Class.forName(className, false, loader);
 } catch (ClassNotFoundException e) {
@@ -110,62 +109,62 @@ try {
 
 So far so good. But what about transferring the bytecode for one node to another, e.g. make it available to any node that needs it? Actually, this was fairly easily solved by using Terracotta itself. We added a <code>HashMap</code> in the implementor of the <code>BytecodeProvider</code> interface, e.g. the <code>TemplateClassLoader</code>, and made sure that as soon as a new class is generated on-the-fly, it is added to the map. After that, the only thing we had to do was to define this map as a shared Terracotta 'root' and we had a cluster wide bytecode repository ready to be used: 
 
-<pre>
-&lt;root&gt;
-  &lt;field-name&gt;
+<pre name="code" class="java">
+<root>
+  <field-name>
     com.uwyn.rife.template.TemplateClassLoader.mBytecodeRepository
-  &lt;/field-name&gt;
-  &lt;root-name&gt;mBytecodeRepository&lt;/root-name&gt;
-&lt;/root&gt;
+  </field-name>
+  <root-name>mBytecodeRepository</root-name>
+</root>
 </pre>
 
 Ok, weâ€™re not really done yet, but close. There are some nitty-gritty details that we had to add to the configuration file in order to let Terracotta do its work. First a hint to use auto-locking (for details on lock configuration, see the <a href="http://terracotta.org">official documention</a>): 
 
-<pre> 
- &lt;locks&gt;
-   &lt;autolock&gt;
-     &lt;method-expression&gt;* *..*.*(..)&lt;/method-expression&gt;
-     &lt;lock-level&gt;write&lt;/lock-level&gt;
-   &lt;/autolock&gt;
- &lt;/locks&gt;
+<pre name="code" class="java"> 
+ <locks>
+   <autolock>
+     <method-expression>* *..*.*(..)</method-expression>
+     <lock-level>write</lock-level>
+   </autolock>
+ </locks>
 </pre>
 
 Then we also had to make shure that didn't cluster more than we wanted to, e.g. that we cut the object graph at the appropriate places. This was done by declaring specific fields as 'transient':
 
-<pre>
-&lt;transient-fields&gt;
-  &lt;field-name&gt;com.uwyn.rife.continuations.ContinuationManager.mRandom&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.engine.Gate.mInitException&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.engine.RequestState.mResponse&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.engine.RequestState.mInitConfig&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.engine.ElementContext.mResponse&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.engine.Site$SiteData.mResourceModificationTimes&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.engine.Site$SiteData.mUrls&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.servlet.RifeFilter.mClassloader&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.servlet.HttpResponse.mResponse&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.servlet.HttpRequest.mHttpServletRequest&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.template.InternalString.mBytesValue_US_ASCII&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.template.InternalString.mBytesValue_ISO_8859_1&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.template.InternalString.mBytesValue_UTF_8&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.template.InternalString.mBytesValue_UTF_16&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.template.InternalString.mBytesValue_UTF_16BE&lt;/field-name&gt;
-  &lt;field-name&gt;com.uwyn.rife.template.InternalString.mBytesValue_UTF_16LE&lt;/field-name&gt;
-&lt;/transient-fields&gt;
+<pre name="code" class="java">
+<transient-fields>
+  <field-name>com.uwyn.rife.continuations.ContinuationManager.mRandom</field-name>
+  <field-name>com.uwyn.rife.engine.Gate.mInitException</field-name>
+  <field-name>com.uwyn.rife.engine.RequestState.mResponse</field-name>
+  <field-name>com.uwyn.rife.engine.RequestState.mInitConfig</field-name>
+  <field-name>com.uwyn.rife.engine.ElementContext.mResponse</field-name>
+  <field-name>com.uwyn.rife.engine.Site$SiteData.mResourceModificationTimes</field-name>
+  <field-name>com.uwyn.rife.engine.Site$SiteData.mUrls</field-name>
+  <field-name>com.uwyn.rife.servlet.RifeFilter.mClassloader</field-name>
+  <field-name>com.uwyn.rife.servlet.HttpResponse.mResponse</field-name>
+  <field-name>com.uwyn.rife.servlet.HttpRequest.mHttpServletRequest</field-name>
+  <field-name>com.uwyn.rife.template.InternalString.mBytesValue_US_ASCII</field-name>
+  <field-name>com.uwyn.rife.template.InternalString.mBytesValue_ISO_8859_1</field-name>
+  <field-name>com.uwyn.rife.template.InternalString.mBytesValue_UTF_8</field-name>
+  <field-name>com.uwyn.rife.template.InternalString.mBytesValue_UTF_16</field-name>
+  <field-name>com.uwyn.rife.template.InternalString.mBytesValue_UTF_16BE</field-name>
+  <field-name>com.uwyn.rife.template.InternalString.mBytesValue_UTF_16LE</field-name>
+</transient-fields>
 </pre>
 
 A bit ugly, but that is about it. 
 
 Finally, we wrapped everything up in a Terracotta Configuration Module which means that the only thing you need to do in order to cluster RIFE is to write a Terracotta configuration file that looks like this:
 
-<pre>
-&lt;tc:tc-config xmlns:tc="http://www.terracotta.org/config"&gt;
-  &lt;!-- ...system and server stuff... --&gt;
-  &lt;clients&gt;
-    &lt;modules&gt;
-      &lt;module name="clustered-rife-1.6.0" version="1.0.0"/&gt;
-    &lt;/modules&gt;
-  &lt;/client&gt;
-&lt;/tc:tc-config&gt;
+<pre name="code" class="java">
+<tc:tc-config xmlns:tc="http://www.terracotta.org/config">
+  <!-- ...system and server stuff... -->
+  <clients>
+    <modules>
+      <module name="clustered-rife-1.6.0" version="1.0.0"/>
+    </modules>
+  </client>
+</tc:tc-config>
 </pre>
 
 That was a long story. I hoped that you learned something along the way. If not, at least try it out and enjoy the outcome of our efforts - it is actually quite a breeze to use. 
