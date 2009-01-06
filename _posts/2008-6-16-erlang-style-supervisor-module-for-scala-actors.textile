@@ -37,7 +37,7 @@ The GenericServer is wrapped by a GenericServerContainer instance providing a ne
 
 So, let's try it out by writing a small example in which we create a couple of servers, configure them, use them in various ways, kill one of them, see it recover, hotswap its implementation etc. 
 
-(Sidenote: I have <a href="http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-actors/">written about hotswapping actors</a> before, however this library has taken this approach a but further and provides a more flexible and powerful way of achieving this. Thanks <a href="http://blog.lostlake.org/">DPP</a>.)
+(Sidenote: I have <a href="http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-actors.html">written about hotswapping actors</a> before, however this library has taken this approach a but further and provides a more flexible and powerful way of achieving this. Thanks <a href="http://blog.lostlake.org/">DPP</a>.)
 
 This walk-through will only cover some of the API, for more details look at the code or the tests.
 

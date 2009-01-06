@@ -11,7 +11,7 @@ Real-World Scala: Dependency Injection (DI)
 <em>Update: Added a version of the last example using the Cake Pattern for easier 
 comparison (see end of post).</em>
 
-In this second post in the <a href="http://jonasboner.com/2008/10/01/real-world-scala-introduction/">Real-World Scala series</a> I am going to discuss how to implement/achieve <a href="http://www.martinfowler.com/articles/injection.html">Depenency Injection</a> (DI) in Scala. Scala is a very rich and deep language that gives you several ways of doing DI solely based on language constructs, but nothing prevents you from using existing Java DI frameworks, if that is preferred. 
+In this second post in the <a href="http://jonasboner.com/2008/10/01/real-world-scala-introduction.html">Real-World Scala series</a> I am going to discuss how to implement/achieve <a href="http://www.martinfowler.com/articles/injection.html">Depenency Injection</a> (DI) in Scala. Scala is a very rich and deep language that gives you several ways of doing DI solely based on language constructs, but nothing prevents you from using existing Java DI frameworks, if that is preferred. 
 
 At <a href="http://www.triental.com/">Triental</a> we tried out three different strategies before settling for the one we are using now. The plan for this article is as follows; first explain in detail how we are doing DI now, and then briefly cover the other alternative strategies we have tried out.   
 

@@ -7,7 +7,7 @@ wordpress_url: http://jonasboner.com/?p=162
 <h1>
 Real-World Scala: Managing Cross-Cutting Concerns using Mixin Composition and AOP
 </h1>
-In a <a href="http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di/">previous post</a> I showed you how you could use mixin composition and self type annotations to enable Dependency Injection (DI). Mixin composition is an extremely powerful tool that you can utilize in many different ways to enable modular and reusable code.  In this post I'll try to show you how you can use it to solve the problem of crosscutting concerns using AOP/interceptor-style composition.
+In a <a href="http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di.html">previous post</a> I showed you how you could use mixin composition and self type annotations to enable Dependency Injection (DI). Mixin composition is an extremely powerful tool that you can utilize in many different ways to enable modular and reusable code.  In this post I'll try to show you how you can use it to solve the problem of crosscutting concerns using AOP/interceptor-style composition.
 
 <strong>Crosscutting concerns and AOP</strong>
 
@@ -238,7 +238,7 @@ msg: bar
 
 So this wraps it up.  I hope that you have learned a little bit about how powerful mixin composition in Scala is and how it can be used to write modular and reusable components with little effort.
 
-This is working fine for us, but there is definitely room for improvement. For example, runtime matcher in the interceptor is fast enough for the annotation matching (only a boolean check) but the AspectJ pointcut matcher is a bit slower since it has to do some more work. This might turn out be a problem or not, most infrastructure services (like persistence and security) performs quite a lot to work and in these cases the overhead over the interceptor of matching will not affect the overall performance much, but in other cases (such as logging or auditing) it might. We are so far only use the annotation matching, so it has not turned out to be a problem so far.  However, if it turns out to be a performance bottleneck then we will most likely switch to using my old AspectWerkz <a href="http://jonasboner.com/2004/12/08/awproxy-proxy-on-steroids/">AWProxy</a> to get rid of all the Java reflection code and runtime matching.
+This is working fine for us, but there is definitely room for improvement. For example, runtime matcher in the interceptor is fast enough for the annotation matching (only a boolean check) but the AspectJ pointcut matcher is a bit slower since it has to do some more work. This might turn out be a problem or not, most infrastructure services (like persistence and security) performs quite a lot to work and in these cases the overhead over the interceptor of matching will not affect the overall performance much, but in other cases (such as logging or auditing) it might. We are so far only use the annotation matching, so it has not turned out to be a problem so far.  However, if it turns out to be a performance bottleneck then we will most likely switch to using my old AspectWerkz <a href="http://jonasboner.com/2004/12/08/awproxy-proxy-on-steroids.html">AWProxy</a> to get rid of all the Java reflection code and runtime matching.
 
 For those that are interested, here is the actual JTA transaction demarcation interceptor that we are using in production (implementing all the EJB transaction semantics).
 

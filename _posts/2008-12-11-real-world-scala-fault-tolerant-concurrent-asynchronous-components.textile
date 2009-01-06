@@ -10,7 +10,7 @@ Real-World Scala: Fault-tolerant Concurrent Asynchronous Components
 </h1>
 <strong>Introduction</strong>
 
-In a <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/">previous post</a> I wrote about <a href="http://github.com/jboner/scala-otp/tree/master">Scala OTP</a>, an initial attempt to bring the power or <a href="http://www.erlang.se/doc/index.shtml">Erlang OTP</a>, in particular its supervisor hierarchies and generic server to the <a href="
+In a <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html">previous post</a> I wrote about <a href="http://github.com/jboner/scala-otp/tree/master">Scala OTP</a>, an initial attempt to bring the power or <a href="http://www.erlang.se/doc/index.shtml">Erlang OTP</a>, in particular its supervisor hierarchies and generic server to the <a href="
 http://www.scala-lang.org/node/242">Scala Actors library</a>. OTP is one of the key parts in the Erlang success story and is in my opinion a requirement for Scala Actors to succeed in the real world. 
 
 Actors can simplify concurrent programming and reasoning immensely and I believe that Scala Actors is a key piece in the future Java concurrency puzzle. However, programming with actors and with explicit message passing and message dispatch loops can feel a bit unnatural and unnecessary verbose for Java developers that are used to regular OO method invocations and synchronous control flow. 

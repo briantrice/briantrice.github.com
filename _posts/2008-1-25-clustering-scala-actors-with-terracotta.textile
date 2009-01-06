@@ -9,7 +9,7 @@ Clustering Scala Actors with Terracotta
 </h1>
 <h2>Introduction</h2>
 
-A month ago I wrote an introductory post about <a href="http://lamp.epfl.ch/~phaller/actors.html">Scala Actors</a>: <a href="http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-actors/">HotSwap Code using Scala and Actors</a>. For you who don't know what it is I don't want to start by reading the previous post let's briefly recap what Actors are and what you can use them for.
+A month ago I wrote an introductory post about <a href="http://lamp.epfl.ch/~phaller/actors.html">Scala Actors</a>: <a href="http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-actors.html">HotSwap Code using Scala and Actors</a>. For you who don't know what it is I don't want to start by reading the previous post let's briefly recap what Actors are and what you can use them for.
 
 An Actor is an abstraction that implements <a href="http://c2.com/cgi/wiki?MessagePassingConcurrency">Message-Passing Concurrency</a>. Actors have no shared state and are communicating by sending and receiving messages. This is a paradigm that provides a very different and much simple concurrency model than <a href="http://c2.com/cgi/wiki?SharedStateConcurrency">Shared-State Concurrency</a> (the scheme adopted by C, Java, C# etc.) and is avoiding most of the latter one's complexity and problems. This makes it possible to write code that is deterministic and side-effect-free, something that makes it easier to write, test, understand and reason about. Each Actor has a mailbox in which it receives incoming messages and normally uses pattern matching on the messages to decide if a message is interesting if action is needed.
 

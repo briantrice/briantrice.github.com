@@ -8,7 +8,7 @@ wordpress_url: http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-act
 HotSwap Code using Scala and Actors
 </h1>
 <strong>Update</strong>: In this article I am showing an even more powerful way of doing hotswap in Scala: 
-<a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/">http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/</a>.
+<a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html">http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html</a>.
 Se the bottom of this article for an example of how this is used to enable hotswap of arbitrary pieces of pattern matching code.
 
 ---- 
@@ -134,7 +134,7 @@ This would be even more cool if Scala came with an SSH server that could provide
 
 <strong>Update</strong>: 
 
-This is a slightly simplified version of the GenericServer code (as discussed <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors/">here</a>), allowing hotswap of arbitrary pieces of pattern matching code: 
+This is a slightly simplified version of the GenericServer code (as discussed <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html">here</a>), allowing hotswap of arbitrary pieces of pattern matching code: 
 
 <pre name="code" class="scala">
 // the actor's main loop

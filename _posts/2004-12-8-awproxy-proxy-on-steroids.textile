@@ -20,12 +20,10 @@ Proxies are an important piece in the J2EE puzzle. Since it offers a non-intrusi
 <p>
 The two arguments against load-time weaving that we hear the most are:
 <ul>
-    <li>
-    that it is complex - 
+    <li>that it is complex - 
     which is an argument that I don't understand, since all you need to do is to add one single VM option when starting up the VM 
     </li>
-    <li>
-    that the transparency of proxies is hard to beat - 
+    <li>that the transparency of proxies is hard to beat - 
     which is an argument that I can fully agree on 
     </li>
 </ul>
@@ -46,11 +44,11 @@ The benefit with using the AspectWerkz Proxies compared to the regular load time
 
 <p>
 The API is pretty straight forward. All you need is in the 
-<pre>
+<pre name="code" class="java">
     org.codehaus.aspectwerkz.proxy.Proxy
 </pre> 
 class which has the following API:
-<pre>
+<pre name="code" class="java">
     // Returns a new proxy for the class specified
     public static Object newInstance(Class clazz);
 
@@ -83,7 +81,7 @@ class which has the following API:
 <h3>How to use the API?</h3>
 <p>
 Here is a little example on how to use the <tt>Proxy</tt> API:
-<pre>
+<pre name="code" class="java">
     // creates and instantiates a new proxy for the class Target
     Target target = (Target) Proxy.newInstance(Target.class, false);
 </pre> 
@@ -113,7 +111,7 @@ Per instance programmatic deployment for <i>before</i>, <i>around</i>, <i>after<
 </p>
 
 <p>
-<pre>
+<pre name="code" class="java">
     POJO pojo = new POJO();
 
     // adds tracing to all methods in the 'pojo' instance
@@ -157,7 +155,7 @@ Now we can combine use this feature together with the AW Proxies. All proxies th
 <h4>Example</h4>
 <p>
 In this example we create and instantiate a new proxy for the class <tt>Target</tt>, we set it to become <i>advisable</i> (e.g. it will implement the <tt>Advisable</tt> interface transparently), and then we add an <i>after returning</i> advice to all methods that returns an instance of <tt>java.lang.String</tt>.
-<pre>
+<pre name="code" class="java">
 
     Advisable target = (Advisable) Proxy.newInstance(Target.class, true, true);
     target.aw_addAdvice(
@@ -189,23 +187,17 @@ If you are interested details of the benchmark we made (and/or run it yourself) 
 <p>
 But in short <i>AW Proxy</i> is roughly:
 <ul>
-    <li>
-    25 times faster than <i>Spring AOP</i> for before and after advice  
+    <li>25 times faster than <i>Spring AOP</i> for before and after advice  
     </li>
-    <li>
-    8 times faster than <i>Spring AOP</i> for around advice  
+    <li>8 times faster than <i>Spring AOP</i> for around advice  
     </li>
-    <li>
-    16 times faster than <i>dynaop</i> for before and after advice  
+    <li>16 times faster than <i>dynaop</i> for before and after advice  
     </li>
-    <li>
-    5 times faster than <i>dynaop</i> for around advice  
+    <li>5 times faster than <i>dynaop</i> for around advice  
     </li>
-    <li>
-    4 times faster than straight <i>cglib</i> for before and after advice  
+    <li>4 times faster than straight <i>cglib</i> for before and after advice  
     </li>
-    <li>
-    1.25 times faster than straight <i>cglib</i> for around advice  
+    <li>1.25 times faster than straight <i>cglib</i> for around advice  
     </li>
 </ul>
 </p>
