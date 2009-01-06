@@ -5,7 +5,7 @@ MIRROR='site'
 FTP_SITE='jonasboner.com'
 FTP_USER='jonabon7'
 FTP_PASSWORD='7dc1c1d'
-FTP_SITE_DIR='public_html/jekyll'
+FTP_SITE_DIR='public_html'
 
 echo '====================================='
 echo 'Grabbing site:' $TARGET_SITE
