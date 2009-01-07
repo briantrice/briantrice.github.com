@@ -161,7 +161,7 @@ ul.posts {
 }
 
   /* standard */
-/*
+
  #post pre {
    overflow:auto;
    font-size: 80%;
@@ -188,14 +188,14 @@ ul.posts {
   
   #post pre.terminal {
     border: 1px solid black;
-    background-color: #333;
+    background-color: black;
     color: white;
   }
   
   #post pre.terminal code {
     background-color: #333;
   }
-*/
+
 #related {
   margin-top: 2em;
 }
