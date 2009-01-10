@@ -5,7 +5,7 @@ title: Blogging Like a Hacker using Git and Jekyll
 
 h1. {{ page.title }}
 
-p(meta). 7 Jan 2009 - Uppsala, Sweden
+p(meta). 7 Jan 2009
 
 For the last year and have been falling in love with "Git":http://git-scm.com. Git is truly an amazing.....tool. I was going to say Source Code Management System (SCM), but that ain't fair, Git is so much more. Git deserves a post on its own, however in this one I'm going to talk about one of the things it can help you with; to blog like a hacker.
 

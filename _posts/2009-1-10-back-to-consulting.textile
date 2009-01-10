@@ -1,0 +1,20 @@
+---
+layout: post
+title: Back To Consulting
+---
+
+h1. {{ page.title }}
+
+p(meta). 10 Jan 2009 
+
+The last year has been a ride. 
+
+"Startup":http://triental.com in finance business, green field development, challenging and interesting problem domain, been pushing "Scala":http://scala-lang.org to its limits in a real-world production setting. Its been a lot of fun and a great learning experience. (I have written some about the way we have used Scala in the "Real-World Scala" series of blog posts, check the "archives":/archives if you are curious.) 
+
+But now its all over. Zero cash flow in. Knocked out by the financial crisis. To bad, we had a great product coming. But not much to do. 
+
+The good news is that I am back in the consulting business. Rewrote and redesigned my company site to mark the beginnning of a new era...well, at least a "new" job. 
+
+Check it out and let me know if you need help :-)
+
+"http://scalablesolutions.se":http://scalablesolutions.se/
