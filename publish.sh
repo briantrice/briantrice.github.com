@@ -15,7 +15,6 @@ echo 'Uploading site:' $FTP_SITE
 echo '===================================================='
 lftp -d -u $FTP_USER,$FTP_PASSWORD $FTP_SITE<<END_SCRIPT
 mirror -n -R . /public_html
-put ../../css
 quit
 
 echo '===================================================='

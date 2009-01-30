@@ -1,0 +1,17 @@
+---
+layout: post
+title: Slides for my Pragmatic Real-World Scala presentation
+---
+
+h1. {{ page.title }}
+
+p(meta). 30 Jan 2009 
+
+I have uploaded the slides for my 'Pragmatic Real-World Scala' talk that I gave at "Jfokus":http://jfokus.se yesterday to "slideshare":http://www.slideshare.net/jboner/pragmatic-real-world-scala-45-min-presentation.
+
+Enjoy.
+
+<div style="width:425px;text-align:left" id="__ss_966972">
+     <a style="font:14px Helvetica,Arial,Sans-serif;display:block;margin:12px 0 3px 0;text-decoration:underline;" href="http://www.slideshare.net/jboner/pragmatic-real-world-scala-45-min-presentation?type=powerpoint" title="Pragmatic Real-World Scala (short version)">Pragmatic Real-World Scala (short version)</a><object style="margin:0px" width="425" height="355"><param name="movie" value="http://static.slideshare.net/swf/ssplayer2.swf?doc=pragmaticrealworldscalajfokus2009-1233251076441384-2&rel=0&stripped_title=pragmatic-real-world-scala-45-min-presentation" /><param name="allowFullScreen" value="true"/><param name="allowScriptAccess" value="always"/><embed src="http://static.slideshare.net/swf/ssplayer2.swf?doc=pragmaticrealworldscalajfokus2009-1233251076441384-2&rel=0&stripped_title=pragmatic-real-world-scala-45-min-presentation" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="355"></embed></object>
+
+</div>
