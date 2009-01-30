@@ -1,5 +1,65 @@
 
 
+<script type='text/javascript'>
+// <!-- 892008102
+// This script is (C) Copyright 2004 Jim Tucek
+// Leave these comments alone!  For more info, visit
+// www.jracademy.com/~jtucek/email/
+
+function freeze(grandfather,acid,year) {
+grandfather += ' ';
+var area = grandfather.length;
+var edge = 0;
+var drawer = '';
+for(var heat = 0; heat < area; heat++) {
+edge = 0;
+while(grandfather.charCodeAt(heat) != 32) {
+edge = edge * 10;
+edge = edge + grandfather.charCodeAt(heat)-48;
+heat++;
+}
+drawer += String.fromCharCode(run(edge,acid,year));
+}
+parent.location = 'm'+'a'+'i'+'l'+'t'+'o'+':'+drawer;
+}
+
+function get(composer,confidence,notice) {
+composer += ' ';
+var discovery = composer.length;
+var diablura = 0;
+for(var dissipation = 0; dissipation < discovery; dissipation++) {
+diablura = 0;
+while(composer.charCodeAt(dissipation) != 32) {
+diablura = diablura * 10;
+diablura = diablura + composer.charCodeAt(dissipation)-48;
+dissipation++;
+}
+//document.write('&');
+//document.write('#');
+//document.write(run(diablura,confidence,notice));
+document.write(String.fromCharCode(run(diablura,confidence,notice)));
+}
+}
+
+function run(gesture,ability,minimum) {
+if (minimum % 2 == 0) {
+death = 1;
+for(var object = 1; object <= minimum/2; object++) {
+night = (gesture*gesture) % ability;
+death = (night*death) % ability;
+}
+} else {
+death = gesture;
+for(var gold = 1; gold <= minimum/2; gold++) {
+night = (gesture*gesture) % ability;
+death = (night*death) % ability;
+}
+}
+return death;
+}
+// -->
+</script>
+
   <div class="footer">
     <div class="contact">
       <p>
@@ -32,11 +92,6 @@
     <h2>Upcoming Talks</h2>
     <ul>
       <li>
-        <a href="http://www.jfokus.se/jfokus/speakers.jsp#Jonas%20Bon%C3%A9r">
-          <span class="date">28.01.09: </span>JFokus 2009 - Stockholm
-        </a>
-      </li>
-      <li>
         <a href="http://qconlondon.com/london-2009/presentation/Pragmatic+Real-World+Scala">
           <span class="date">11.03.09: </span>QCon London 2009 - London
         </a>
@@ -57,4 +112,10 @@
     </div>
  -->  
    </div>
+
+  <div class="twitter">
+    <div id="twitter_div">
+      &copy; 2003-2009 Jonas Bon&#233;r
+    </div>
+  </div>
 
