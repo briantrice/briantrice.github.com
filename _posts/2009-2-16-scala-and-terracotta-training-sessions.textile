@@ -1,0 +1,13 @@
+---
+layout: post
+title: Scala and Terracotta Training Sessions
+---
+
+h1. {{ page.title }}
+
+p(meta). 16 Feb 2009 
+
+I will be giving two half-day training sessions in Gothenburg (Sweden) on April 23:d. One on "Pragmatic Real-World Scala":http://www.scandevconf.se/open-event/all/pragmatic-real-world-scala-half-day-tutorial and one on "Scaling your Java Application with Terracotta":http://www.scandevconf.se/open-event/all/scaling-your-java-application-with-terracotta-half-day-tutorial. These workshops are held in conjunction with "Scandinavian Developer Conference (SDC) 2009":http://www.scandevconf.se/. 
+
+Shoot me an email if you are interested in attending. 
+         
