@@ -1,7 +1,7 @@
 #! /bin/sh
  
 SITE='_site'
-FTP_SITE='jonasboner.com'
+FTP_SITE='ftp.s1080089.crystone.net'
  
 cd $SITE
 echo 'Stepping into' $SITE
@@ -12,7 +12,7 @@ echo '===================================================='
 echo 'Uploading site:' $FTP_SITE
 echo '===================================================='
 lftp -d -u $FTP_USER,$FTP_PASSWORD $FTP_SITE<<END_SCRIPT
-mirror -n -R . /public_html
+mirror -n -R . /webspace/httpdocs/logs
 quit
  
 echo '===================================================='
