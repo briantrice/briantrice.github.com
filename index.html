@@ -8,12 +8,13 @@ title: Jonas Bon&#233;r
 <div id="home">
   <p>
     <br/>
-    <!--h1>Blog Posts</h1-->
     <ul class="posts">
-      {% for post in site.posts limit:5 %}
-        <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
-      {% endfor %}
-      <li><a href="/archives/">archives...</a></li>
+	<!-- 
+    {% for post in site.posts limit:5 %}
+      <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endfor %}
+    <li><a href="/archives/">archives...</a></li>
+	-->
     </ul>
   </p>
 </div>
