@@ -1,0 +1,34 @@
+--- 
+wordpress_id: 70
+layout: post
+title: Commons Logging Has To Die
+excerpt: |
+  Unfortunately, I guess it is to late to kill the beast...
+  
+  But I am writing this post anyway, since it <a href="http://briankuhn.com/?p=33">keeps on causing harm</a> and since more enlightment around the actual problems it causes obviously is necessary.
+  
+  My first contact with <a href="http://jakarta.apache.org/commons/logging/">Commons Logging</a>was in 2002, where it made the application is was currently working on blow up. After tracking down the problem, I solved it using <a href="http://eclipse.org/aspectj/">AspectJ</a> by hijacking Commons Logging and swap out the dynamic discovery mechanism to a static one (using <a href="http://logging.apache.org/log4j/docs/">Log4J</a> directly), and have been fighting for a <em>Commons-Logging-Free-World (TM)</em> ever since.
+
+wordpress_url: http://jonasboner.com/?p=70
+---
+<h1>
+Commons Logging Has To Die
+</h1>
+Unfortunately, I guess it is to late to kill the beast...
+
+But I am writing this post anyway, since it <a href="http://briankuhn.com/?p=33">keeps on causing harm</a> and since more enlightment around the actual problems it causes obviously is necessary.
+
+My first contact with <a href="http://jakarta.apache.org/commons/logging/">Commons Logging</a> was in 2002, where it made the application is was currently working on blow up. After tracking down the problem, I solved it using <a href="http://eclipse.org/aspectj/">AspectJ</a> by hijacking Commons Logging and swap out the dynamic discovery mechanism to a static one (using <a href="http://logging.apache.org/log4j/docs/">Log4J</a> directly), and have been fighting for a <em>Commons-Logging-Free-World (TM)</em> ever since.
+
+If you want to know more about the actual problems it causes and why using class loader hacks to implement a dynamic discovery process is generally a bad idea, read the article <a href="http://www.qos.ch/logging/classloader.jsp">Taxonomy of class loader problems encountered when using Jakarta Commons Logging</a>.
+
+I do understand why Commons Logging was invented, it solves a theoretical problem (I am using the word 'theoretical' here, since almost everyone that uses it, uses Log4J as the logging implementation anyway), it is just unfortunate that it became so popular so fast.
+
+However, there are alternatives. If you really need to use a Logging facade (which I do not think you do), you should try out <a href="http://www.slf4j.org/">Simple Logging Facade for Java (SLF4J)</a>, which uses static (compile time) binding of the Logging implementation, e.g. avoids the above stated problems.  They even have a <a href="http://www.slf4j.org/manual.html#gradual">gradual migration path</a> from Commons Logging. 
+
+Sorry if I sound bitter, but I just had to get it out... :-)
+
+----
+Update:
+
+I just remembered that <a href="http://sixlegs.com/blog">Chris Nokleberg</a> has a implemented a <a href="http://sixlegs.com/blog/java/dependency-killer.html">fancy way</a> of getting rid of Commons Logging (and any other annoying dependency for that matter), it is part of his excellent package <a href="http://tonicsystems.com/products/jarjar/">JarJar</a>.

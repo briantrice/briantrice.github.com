@@ -1,0 +1,26 @@
+--- 
+wordpress_id: 80
+layout: post
+title: Think AOP Is Dead? - Time To Reconsider...
+wordpress_url: http://jonasboner.com/?p=80
+---
+<h1>
+Think AOP Is Dead? - Time To Reconsider...
+</h1>
+If you thought AOP was dead or at least dying, then it is time to reconsider.
+AOP is not dead. Not even close.
+
+After a perhaps healthy backlash, that took away some of the hype and coolness about AOP, it is steadily getting more and more adoption and traction in the enterprise space at large.
+
+A lot is happening now. Here are only a few samples:
+
+Yesterday the release of <a href="http://eclipse.org/aspectj/">AspectJ 5</a> final was <a href="http://dev.eclipse.org/mhonarc/lists/aspectj-users/msg05174.html">announced</a>. This is IMO the most significant milestone in the history of AOP (so far). Finally we have a standardized language and toolkit and can, both as developers and users, try to move in the same direction and focus on building new things on top of this platform - instead of fighting over semantics, APIs and user base.
+
+<a href="http://www.aspectprogrammer.org/blogs/adrian/">Adrian Colyer</a> and and the <a href="http://www.springframework.org/">Spring</a> team has done a tremendous job unifiying AspectJ 5 and Spring. Adrian showed me some of their work during the Spring Experience conference and they have some very cool and useful things both working and in the pipeline. Stay tuned for the upcoming Spring 2.0 milestones.
+
+I had the pleasure of attending Rod Johnson's talk on Spring 2.0 at JavaPolis, a great talk that actually was mainly a (practical and non salesy) PR talk on AOP, in which he spent roughly half the time explaining why AspectJ is important for Spring users how they can utilize it in the upcoming 2.0 release of Spring. This is another evidence that Spring is embracing AOP and AspectJ 5 in a big way.
+
+The future looks bright...
+...but it is still mainly up to you users to make it happen.
+
+So, go ahead and <a href="http://www.eclipse.org/ajdt/downloads/">download AspectJ 5</a>, play with it, have fun and then start use it for real...

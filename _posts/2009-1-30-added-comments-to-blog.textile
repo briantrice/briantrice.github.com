@@ -1,0 +1,14 @@
+---
+layout: post
+title: Added Comments to Blog
+---
+
+h1. {{ page.title }}
+
+p(meta). 30 Jan 2009 
+
+Many people have asked for it, so I have decided to add comments to my blog again. 
+
+Thank you "Disqus":http://disqus.com. 
+
+Let the discussion "continue":http://jonasboner.com. 

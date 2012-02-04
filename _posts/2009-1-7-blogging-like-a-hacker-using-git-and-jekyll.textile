@@ -1,0 +1,17 @@
+---
+layout: post
+title: Blogging Like a Hacker using Git and Jekyll
+---
+
+h1. {{ page.title }}
+
+p(meta). 7 Jan 2009
+
+For the last year and have been falling in love with "Git":http://git-scm.com. Git is truly an amazing.....tool. I was going to say Source Code Management System (SCM), but that ain't fair, Git is so much more. Git deserves a post on its own, however in this one I'm going to talk about one of the things it can help you with; to blog like a hacker.
+
+For the last year I have not only used Git but have hosted my whole professional life on "GitHub":http://github.com. GitHub started as a server with Git repositories but have since then grown into a thriving community with a lot of interesting and cool features and side projects up its sleeve. One of these "features" is "Jekyll":http://github.com/mojombo/jekyll/tree/master. Jekyll is a minimalistic blog engine based upon Git. It allows you to write all your blog posts in either Textile, Markdown or HTML while having Git (and GitHub) take care of storage, versioning etc. 
+
+It is dead simple. Generates everything into static HTML, which I think is great. And as with all viral good open source, there are already a bunch of plug-ins such as for example converting your MT, WordPress, Typo etc blogs into Textile/Markdown for Jekyll to consume. The thing I like most is that everything is plain text, residing in your Git repository (e.g. on your file system). This means that I can write my blog post in Emacs, commit the changes using the Emacs (emacs-git), push it up to GitHub using Emacs, generate my site and FTP it up to my server from Emacs (replace Emacs with your favorite editor). Never been easier (or more fun) to blog. Hopefully this will make me do it more often. 
+
+For a sample of a Jekyll-powered blog, take a look at mine: "http://jonasboner.com":http://jonasboner.com
+

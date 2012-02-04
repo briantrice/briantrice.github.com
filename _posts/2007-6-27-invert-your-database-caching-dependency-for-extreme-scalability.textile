@@ -1,0 +1,46 @@
+--- 
+wordpress_id: 140
+layout: post
+title: Invert Your Database Caching Dependency for Extreme Scalability
+wordpress_url: http://jonasboner.com/2007/06/27/invert-your-database-caching-dependency-for-extreme-scalability/
+---
+<h1>
+Invert Your Database Caching Dependency for Extreme Scalability
+</h1>
+Today most applications rely on a relational database (RDBMS) as its primary Service of Record (SoR) -- the master copy of the data. But in order to minimize latencies in response time (from the database transaction roundtrips), most applications uses some sort of database cache in order to try to keep the data close to its processing context.
+
+Database caches are most often seen deployed as the second-level cache in O/R mapping tools such as Hibernate or TopLink, but custom-built or general-purpose caches, like Ehcache and OScache, are also common. This architecture and design is proven, sound and has turned into the de facto standard way of building enterprise applications. 
+
+But does it really solve the problem? First, the cache can only help us with read-mostly data and second, we still have to struggle with the object/relational impedance mismatch.
+
+The first step is to distinguish between temporary/intermediate/transient data and business-critical data. Where the former is the data that is needed/used in the process of doing a computation or keeping a conversation with the client etc., while the latter is the result of competition or the outcome of the client conversation (f.e. a completed order form). The latter naturally belongs in a RDBMS (for reporting, billing etc.) while the former is best kept persisted in memory (needed to for H/A) in some sort of cache (preferably <a href="http://terracotta.org/confluence/display/orgsite/WebSearchCacheLanding">backed up by Terracotta</a>) -- keeping the data close to its processing context. Unfortunately, many developers fail to do this distinction and end up shoveling everything down in the RDBMS, with a high latencies, bad throughput and more complicated and hard to maintain software as the result. So far no news. 
+
+But let me now propose an, in some ways, new and radical solution: <strong>Invert the RDBMS-Cache dependency</strong>.
+
+<ol>
+<li>
+Let the in-memory cache become the master SoR -- which is persisted in memory using an appliances-like infrastructure service -- like <a href="http://terracotta.org">Terracotta's</a> <a href="http://www.ddj.com/dept/java/199703478">Network-Attached Memory (NAM)</a>. 
+</li>
+
+<li>
+Keep a transaction log, which logs every modification to the in-memory data.  
+</li>
+
+<li>
+Let a low priority thread asynchronously process the transaction log every X minutes/seconds and serially execute the database transactions. 
+</li>
+
+<li>
+Treat the RDBMS as an "offline" data snapshot on which you can run the usual reporting and data mining tools â€“ needed for billing, weekly reports etc.
+</li>
+
+<li>
+Since your SoR is now effectively persisted "on the network", instead of in the RDBMS, you can without any further effort add as many nodes to process the data as you want, e.g. scale-out your application and to ensure high-availability. 
+</li>
+</ol>
+
+I am not arguing that this is a general-purpose solution, and there are certainly cases where it will be very hard or impossible to implement due to either political or practical constraints (like need for real-time access to data in the RDBMS etc.). But it fits many more use-cases than you might think. Mainly requires a bit of courage and out-of-the-box thinking.  
+
+For those that have doubt; this is not vaporware but actually how some of Terracotta's customers have used Terracotta's NAM to solve their performance and scalability problems, and have been able to reach extreme scalability while keeping the simplicity of their POJO model intact. 
+
+

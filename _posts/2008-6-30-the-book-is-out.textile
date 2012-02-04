@@ -1,0 +1,12 @@
+--- 
+wordpress_id: 158
+layout: post
+title: The Book Is Out
+wordpress_url: http://jonasboner.com/2008/06/30/the-book-is-out/
+---
+<h1>
+The Book Is Out
+</h1>
+<a href="http://www.amazon.com/Definitive-Guide-Terracotta-Hibernate-Scalability/dp/1590599861">The Definite Guide to Terracotta</a> by me and my colleagues; <a href="http://blog.terracottatech.com">Ari</a>, <a href="http://rifers.org/blogs/gbevin">Geert</a>, <a href="http://tech.puredanger.com/">Alex</a>, <a href="http://orionl.blogspot.com/">Orion</a> and <a href="http://javathink.blogspot.com/">Taylor</a>, is now available in the stores. 
+It is a pragmatic and practical book, with tons of real-world examples and stories, so if you want to learn how to use Terracotta for real then go and <a href="http://www.amazon.com/Definitive-Guide-Terracotta-Hibernate-Scalability/dp/1590599861">order a copy</a>. 
+ 

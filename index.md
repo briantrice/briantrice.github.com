@@ -1,45 +1,44 @@
 ---
 layout: page
-title: Hello World!
+title: Home
 ---
 {% include JB/setup %}
 
-Read [Jekyll Quick Start](http://jekyllbootstrap.com/usage/jekyll-quick-start.html)
+<h1 id='welcome'>Welcome</h1>
 
-Complete usage and documentation available at: [Jekyll Bootstrap](http://jekyllbootstrap.com)
+<img class='inset left' title='Mark Reid' src='/images/jonas_bw_small.JPG' alt='Photo of Jonas' />
 
-## Update Author Attributes
+I'm Jonas Bonér, an entrepreneur, programmer, teacher, mentor, speaker and writer. I'm also a husband, a proud dad to two boys, a passionate skier (alpine, telemark and snowboard) and jazz saxophone player (tenor, alto and soprano).
 
-In `_config.yml` remember to specify your own data:
-    
-    title : My Blog =)
-    
-    author :
-      name : Name Lastname
-      email : blah@email.test
-      github : username
-      twitter : username
+<div class='section'>
+<h1 id='work'>Work</h1>
 
-The theme should reference these variables whenever needed.
-    
-## Sample Posts
-
-This blog contains sample posts which help stage pages and blog data.
-When you don't need the samples anymore just delete the `_posts/core-samples` folder.
-
-    $ rm -rf _posts/core-samples
-
-Here's a sample "posts list".
-
-<ul class="posts">
-  {% for post in site.posts %}
-    <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
-  {% endfor %}
+I'm the co-founder and CTO of <a href="http://typesafe.com">Typesafe</a> building a software stack for scalable systems, consisting of: 
+<ul class='compact recent'>
+  <li><a href="http://www.scala-lang.org">Scala</a> Programming Language</li>
+  <li><a href="http://akka.io">Akka</a> Middleware</li>
+  <li><a href="http://www.playframework.org/">Play!</a> Web Framework</li>
 </ul>
+</div>
 
-## To-Do
+<div class='section'>
+<h1 id='oss'>Open Source</h1>
+I am a long time contributor to the Open Source community; most notably created the <a href="http://akka.io">Akka</a> Project, the <a href="http://aspectwerkz.codehaus.org">AspectWerkz</a> Aspect-Oriented Programming (AOP) framework, committer to the Terracotta JVM clustering technology and been part of the Eclipse <a href="http://eclipse.org/aspectj">AspectJ</a> team. In 2011 I became a <a href="http://java.net/website/java-champions/bios.html#Boner">Java Champion</a>.
+Read more on the <a href="/projects/">Projects</a> page.
+</div>
 
-This theme is still unfinished. If you'd like to be added as a contributor, [please fork](http://github.com/plusjade/jekyll-bootstrap)!
-We need to clean up the themes, make theme usage guides with theme-specific markup examples.
+<div class='section'>
+<h1 id='blogs'>Blogs</h1>
 
+I am currently writing for:
+<ul class='compact recent'>
+  <li>My <a href="/archive.html">Personal Blog</a></li>
+  <li>Akka Team Blog: <a href="http://letitcrash.com">letitcrash.com</a></li>
+  <li>The <a href="http://blog.typesafe.com/">Typesafe Company Blog</a></li>
+</ul>
+</div>
 
+<div class='section'>
+<h1 id='twitter'>Twitter</h1>
+<p>I tweet more than I should at <a href='http://twitter.com/jboner'>twitter.com/jboner</a></p>
+</div>

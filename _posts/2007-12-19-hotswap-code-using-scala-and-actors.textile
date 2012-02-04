@@ -1,0 +1,169 @@
+--- 
+wordpress_id: 153
+layout: post
+title: HotSwap Code using Scala and Actors
+wordpress_url: http://jonasboner.com/2007/12/19/hotswap-code-using-scala-and-actors/
+---
+<h1>
+HotSwap Code using Scala and Actors
+</h1>
+<strong>Update</strong>: In this article I am showing an even more powerful way of doing hotswap in Scala: 
+<a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html">http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html</a>.
+Se the bottom of this article for an example of how this is used to enable hotswap of arbitrary pieces of pattern matching code.
+
+---- 
+In this post I will show you how you can do code hotswap in the same fashion as in <a href="http://erlang.org">Erlang</a> using <a href="http://www.scala-lang.org">Scala</a> and its <a href="http://lamp.epfl.ch/~phaller/actors.html">Actors</a> package. 
+
+An actor is an abstraction that implements <a href="http://c2.com/cgi/wiki?MessagePassingConcurrency">Message-Passing Concurrency</a>. Actors have no shared state and are communicating by sending and receiving messages. This is a paradigm that provides a very different and much simpler concurrency model than <a href="http://c2.com/cgi/wiki?SharedStateConcurrency">Shared-State Concurrency</a> (the scheme adopted by C, Java, C# etc.) and is avoiding all of the latter one's problems with deadlocks, live locks, thread starvation etc. This makes it possible to write code that is deterministic and <a href="http://en.wikipedia.org/wiki/Side_effect_%28computer_science%29">side-effect-free</a>, something that makes easier to write, test, understand and reason about. Each actor has a mailbox in which it receives incoming messages and can use pattern matching on the messages to decide if a message is interesting and which action to take.  The most well known and successful implementation of actors can be found in the Erlang language (and the OTP platform) where it has been used to implement extremely fault tolerant (<a href="http://ll2.ai.mit.edu/talks/armstrong.pdf ">99.9999999% reliability - 9 nines</a>) and massively concurrent systems (with hundreds of thousand simultaneous actors). 
+
+Let's start by writing a little server. We implement this in the form of a <code>trait</code>, which is Scala's <a href="http://en.wikipedia.org/wiki/Mixin">mixin</a> construct. Traits allows you to build up your components using so-called mixin composition which is something that can give you a very high grade of reuse and flexibility. This <code>trait</code> only defines a single method named <code>status</code> which prints out info about the enclosing instance. Completely useless and not much for a server, but it will give you the idea. Then we subclass this mixin and define the <code>ServerOne</code> concrete server class (with the <code>status</code> method mixed in). 
+
+<pre name="code" class="scala">
+// servers
+trait Server {
+  def status = println("current server: " + this)
+}
+class ServerOne extends Server 
+</pre>
+
+Let's instantiate the <code>ServerOne</code> class and see what the <code>status</code> method it will print out. Here we are doing it interactively through Scala's REPL (read-eval-print-loop).
+
+<pre name="code" class="scala">
+$ scala -cp .
+
+scala> val server = new ServerOne
+server: ServerOne = ServerOne@7be75d
+
+scala> server status
+current server: ServerOne@7be75d
+</pre>
+
+Now, before we write the actor we have to define the messages it responds to. Here Scala is using something called <em>case classes</em> which are similar to normal classes but with some enhancements. First you can match on them, e.g. use pattern matching similar to the one found in Erlang. They also have some syntactic sugar, f.e. you can create them without using <code>new</code>, the compiler generates getters and setters for the constructor arguments, equality is not based on object id but on meaning/content (something that makes them ideal to use for <a href="http://c2.com/cgi/wiki?ValueObject">value objects</a>, but that is another story). We define two different messages; Status and HotSwap.
+
+<pre name="code" class="scala">
+// triggers the status method
+case object Status
+
+// triggers hotswap - carries the new server to be hotswapped to
+case class HotSwap(s: Server)
+</pre>
+
+Ok, now it is time for the actual actor. Actor is a base class in the Scala library and we can choose to either extend it explicitly or to create an anonymous actor through the <code>actor {...}</code> construct. When we subclass the actor we have to implement the method called <code>act</code> which is the callback method that is invoked when the actor is started up. 
+
+Scala comes with two different implementations; one that is based on Java threads in that each actor is getting its own thread, while the other one is based on events and very lightweight allowing hundreds of thousands of actors to run simultaneously. Here we will use the event-based version (which is done by using the <code>react</code> method instead of the <code>receive</code> method for receiving messages). 
+
+The trick to do hotswap by using actors is to loop recursively and pass on the state in each recursive call. This is a very common idiom in functional programming.  The beauty of it is that we do not update any mutual state but our execution is side effect free which makes it easier to test and reason about.  In this case our state is the actual server. We start the loop by instantiating <code>ServerOne</code>. The pattern matching is happening in <code>react</code> statement in which we have three different cases (pattern matchers). 
+
+The first one matches our <code>Status</code>, when we receive this message we simply invoke the <code>status</code> method on our server and then taking another round in the <code>loop</code> passing along the server. 
+
+The second one matches our <code>HotSwap</code> message. It is here things are starting to get interesting. Now we can take the new replacement server (here called <code>newServer</code>), which is passed to us as an argument to the <code>HotSwap</code> message, and pass it in to the call to the <code>loop</code> method. Voila, we have updated our server at runtime. Now all subsequent messages will act on our new server instance. 
+
+This will work since the <code>react</code> method will in fact never return but infinitely recur. Infinite recursion would have been a problem in f.e. Java since each recursion would consume a new stack frame until we run out of memory. But recursion is one of the most powerful and commonly used idioms in functional programming and the Scala compiler optimizes <a href="http://en.wikipedia.org/wiki/Tail_recursion">tail-recursive</a> algorithms and turns them into regular loops. 
+
+At the end we have also added a match-all pattern that does nothing, this is defined by the <code>case _ => ...</code> clause. Let's take a look at the code.
+
+<pre name="code" class="scala">
+class ServerActor extends Actor {
+  def act = {
+    println("starting server actor...")
+    loop(new ServerOne)
+  }
+  
+  def loop(server: Server) {
+    react {
+      case Status => 
+        server.status
+        loop(server)
+
+      case HotSwap(newServer) => 
+        println("hot swapping code...")
+        loop(newServer)
+
+      case _ => loop(server)
+    }
+  }
+}
+</pre>
+
+Finally we will follow one of Scala's idioms and create a companion object for our <code>ServerActor</code> class. In this object, which is a singleton but should be seen upon as a module for functions and immutable state, we define an immutable handle to an instantiated and started actor. 
+
+Worth to note is that the <code>val</code> holding our actor is initialized when the enclosing object is first used, and since we are starting up the actor in the initialization block of the <code>val</code>, the actor will not be started until it is used for the first time. 
+
+<pre name="code" class="scala">
+// actor companion object
+object ServerActor {
+  val actor = {
+    val a = new ServerActor
+    a.start; a
+  }
+}
+</pre>
+
+Let's try to run it in the Scala REPL. The Scala function <em>!</em> (pronounced bang) means "send a message". So <em>act ! msg</em> means send message <em>msg</em> to actor <em>act</em>.
+
+<pre name="code" class="scala">
+$ scala -cp .  
+
+scala> import hotswap._
+import hotswap._
+
+scala> val actor = ServerActor.actor
+starting actor...
+actor: hotswap.ServerActor = hotswap.ServerActor@528ed7
+
+scala> actor ! Status
+current server: hotswap.ServerOne@226445
+
+scala> class ServerTwo extends Server {
+     | override def status = println("hotswapped server: " + this)
+     | }
+defined class ServerTwo
+
+scala> actor ! HotSwap(new ServerTwo)
+hot swapping code...
+
+scala> actor ! Status
+hotswapped server: line5$object$$iw$$iw$$iw$ServerTwo@b556
+</pre>
+
+Pretty cool, right? 
+
+This would be even more cool if Scala came with an SSH server that could provide this REPL remotely (like we have in Erlang OTP). Then we could connect to our application from the outside and change its behavior, fixing bugs, upgrade the server etc. Another solution would be to make use of the <a href="http://www.scala-lang.org/docu/files/api/scala/actors/remote$content.html">remote actors</a> in the Scala distribution, but that is something for another post. 
+
+---
+
+<strong>Update</strong>: 
+
+This is a slightly simplified version of the GenericServer code (as discussed <a href="http://jonasboner.com/2008/06/16/erlang-style-supervisor-module-for-scala-actors.html">here</a>), allowing hotswap of arbitrary pieces of pattern matching code: 
+
+<pre name="code" class="scala">
+// the actor's main loop
+def act = loop { react { genericBase orElse actorBase } }
+
+// should we go with the hotswapped impl or the regular server impl (body)
+private def actorBase: PartialFunction[Any, Unit] = hotswap getOrElse body
+
+// the hotswapped impl
+private var hotswap: Option[PartialFunction[Any, Unit]] = None
+
+// generic functionality
+private val genericBase: PartialFunction[Any, Unit] = {
+  case HotSwap(code) => hotswap = code
+}
+
+// the regular server implementation
+def body: PartialFunction[Any, Unit] = {
+  ...
+}
+
+</pre>
+
+This code can be used like this: 
+
+<pre name="code" class="scala">
+server ! HotSwap(Some({
+  case Ping => 
+    println("Ping")
+}))
+</pre>
+

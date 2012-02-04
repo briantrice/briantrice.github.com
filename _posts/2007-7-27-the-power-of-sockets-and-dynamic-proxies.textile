@@ -1,0 +1,321 @@
+--- 
+wordpress_id: 145
+layout: post
+title: The Power of Sockets and Dynamic Proxies
+wordpress_url: http://jonasboner.com/2007/07/27/the-power-of-sockets-and-dynamic-proxies/
+---
+<h1>
+The Power of Sockets and Dynamic Proxies
+</h1>
+I was going through some of the older parts of my <a href="http://darcs.net/">darcs</a> repository the other day when I stumbled upon a pretty neat and powerful little remoting library that I wrote back in 2001. It is based on <a href="http://java.sun.com/j2se/1.3/docs/guide/reflection/proxy.html">dynamic proxies</a> and plain sockets, almost legacy programming techniques nowadays in a world of BCI (bytecode instrumentation), <a href="http://www.eclipse.org/aspectj/">AOP</a>, <a href="http://java.sun.com/products/ejb/">EJBs</a>, <a href="http://terracotta.org">Terracotta</a> etc. 
+
+Anyway, I thought that the implementation is fairly interesting (and useful) and would make good blog post. 
+
+It basically implements a remote proxy, that can either be instantiated by the client or instantiated by the server and sent to the client. In either case, when methods are invoked upon the proxy then they are executed on the server. The communication is socket-based and the server is holding a resizable thread pool that can grow and shrink based on usage. The beauty of using dynamic proxies is that once the proxy has been instantiated, the <a href="http://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a> is transparent, e.g. pretty much the same as with <a href="http://java.sun.com/javase/technologies/core/basic/rmi/index.jsp">RMI</a> but without all the stub and skeleton mess. Is a very simple library, not meant as a full RMI replacement, but does its job pretty well. I have used it among other things for:
+
+<ul>
+	<li>getting a remote <a href="http://www.hibernate.org/hib_docs/v3/api/org/hibernate/context/package-summary.html">Hibernate Context</a> in 5 lines of code
+</li>
+	<li>the remoting layer in a <a href="http://java.sun.com/products/jndi/">JNDI</a> implementation
+</li>
+	<li>remote access to <a href="http://aspectwerkz.codehaus.org/">AspectWerkz</a> aspects and mixins
+</li>
+</ul>
+
+So without further ado, let's dive into some code. First, and most importantly, would be to take a look at how the remote proxy can be used from a client's perspective.
+
+This simple unit test is testing (and highlights) two basic features. 
+
+<ul>
+<li>Create and use a client side remote proxy (that should create and use a matching instance on the server).</li>
+<li>Let the server create a proxy and send it to the client which uses it.</li>
+</ul>
+
+<pre name="code" class="java">
+public void testSimpleProxy() {
+
+    // 1)
+    // creates a new remote proxy for the POJOImpl1 class 
+    // which maps to an instance of this class on the server
+    RemoteProxy proxy1 = RemoteProxy.createClientProxy(
+            new String[]{"test.POJO1"}, // interface(s)
+            "test.POJOImpl1",  // implementation
+            "localhost",       // server IP or hostname
+            6663               // server port
+    );
+    // retrieves the POJOImpl1 instance
+    POJO1 pojo1 = (POJO1) proxy1.getInstance();
+
+    // 2)
+    // invoke a method on the proxy (executed on the server)
+    assertEquals("POJO1 here", pojo1.test());
+
+    // 3)
+    // retrieve the proxy that is created on the server
+    RemoteProxy proxy2 = pojo1.getPOJO2();
+    
+    // retrieves the POJOImpl2 instance
+    POJO2 pojo2 = (POJO2) proxy2.getInstance();
+
+    // 4)
+    // invoke a method on the proxy (executed on the server)
+    assertEquals("POJO2 here", pojo2.test());
+
+    // 5)
+    // close the proxies (close() must always be called)
+    proxy1.close();
+    proxy2.close();
+}
+</pre>
+
+That was easy. So much for the client side. 
+
+How can we now create the server that serves these two proxies? The only thing we have to do is to create a <code>RemoteProxyServer</code> by passing in the class loader that we want to use to instantiate our proxied objects as well as an implementation of the <code>Invoker</code> interface (which has one single method called <code>invoke</code>), an interface that gives you the possibility to invoke methods on your proxied objects any way you want. This example simply shows the most basic way of doing it: 
+
+<pre name="code" class="java">
+// create a remote proxy server with a simple Invoker impl
+RemoteProxyServer remoteProxyServer = new RemoteProxyServer(
+        classLoader,
+        return new Invoker() {
+            public Object invoke(String handle,
+                                 String methodName,
+                                 Class[] paramTypes,
+                                 Object[] args,
+                                 Object context) {
+                Object result;
+                try {
+                    Object instance = RemoteProxy.getWrappedInstance(handle);
+                    Method method = instance.getClass().getMethod(methodName, paramTypes);
+                    result = method.invoke(instance, args);
+                } catch (Exception e) {
+                    throw new WrappedRuntimeException(e);
+                }
+                return result;
+            }
+        };);
+
+// start all server threads
+remoteProxyServer.start();
+</pre>
+
+Let's now dive into the implementation of the server a little bit. When we invoke <code>remoteProxyServer.start()</code> then the server starts up X worker threads (managed by a thread pool). The work done by of one of these thread is roughly - in pseudo code: 
+
+<ul>
+	<li>Get the object output and input streams</li>
+	<li>Loop:: read from input stream<ul>
+	<li>if command == CREATE: create an instance on the server and send a handle to the output stream</li>
+	<li>else if command == INVOKE: grab the parameters, invoke the method and send the result to the output stream</li>
+	<li>else if command == CLOSE: exit the thread</li>
+</ul>
+</li>
+</ul>
+
+Here are some code excerpts, highlighting the algorithm:
+
+<pre name="code" class="java">
+public void run() {
+    try {
+        m_socket.setTcpNoDelay(true);
+        m_socket.setSoTimeout(m_timeout);
+        m_in = new ObjectInputStream(m_socket.getInputStream());
+        m_out = new ObjectOutputStream(m_socket.getOutputStream());
+    } catch (IOException e) {
+        throw new WrappedRuntimeException(e);
+    }
+    while (m_running) {
+        try {
+            switch (m_in.read()) {
+                case Command.CREATE:
+                    handleCreateCommand();
+                    break;
+                case Command.INVOKE:
+                    handleInvocationCommand();
+                    break;
+                case Command.CLOSE:
+                    m_running = false;
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            close();
+            throw new WrappedRuntimeException(e);
+        }
+    }
+    close();
+}
+
+private void handleCreateCommand() 
+        throws IOException, ClassNotFoundException,
+        InstantiationException, IllegalAccessException {
+    String className = (String) m_in.readObject();
+    Class klass = Class.forName(className, false, m_loader);
+    Object instance = klass.newInstance();
+    // get a handle to the proxied instance
+    String handle = RemoteProxy.wrapInstance(instance);
+    m_out.writeObject(handle);
+    m_out.flush();
+}
+
+private void handleInvocationCommand() 
+        throws IOException, ClassNotFoundException {
+    Object context = m_in.readObject();
+    String handle = (String) m_in.readObject();
+    String methodName = (String) m_in.readObject();
+    Class[] paramTypes = (Class[]) m_in.readObject();
+    Object[] args = (Object[]) m_in.readObject();
+    Object result = null;
+    try {
+        result = m_invoker.invoke(handle, methodName, paramTypes, args, context);
+    } catch (Exception e) {
+        result = e; // pass the exception to the client
+    }
+    m_out.writeObject(result);
+    m_out.flush();
+}
+</pre>
+
+If the client asks for a server created proxy, then the server would create it like this: <code>RemoteProxy proxy = RemoteProxy.createServerProxy(myInstance, "localhost", 6663);</code>, and write it to the object output stream - or even more simple have one of the already proxied objects create it (on the server) and return it (to the client). 
+
+This is pretty much the whole server. But if you're still with me, I'm sure you're eager to know what the <code>RemoteProxy</code> looks like. Well, here are some of the more interesting parts of its internals:
+
+<pre name="code" class="java">
+public class RemoteProxy implements InvocationHandler, Serializable {
+
+    ... // constructors and field declarations are omitted
+
+    /**
+     * Creates a new proxy to a class. To be used on the client side to 
+     * create a new proxy to an object.
+     *
+     * @param interfaces the name of the interfaces for the object to create the proxy for
+     * @param impl       the name of the the impl class to create the proxy for
+     * @param address    the address to connect to
+     * @param port       the port to connect to
+     * @param ctx        the context carrying the users principals and credentials
+     * @param loader     the class loader to use for instantiating the proxy
+     * @return the new remote proxy instance
+     */
+     public static RemoteProxy createClientProxy(String[] interfaces,
+                                                String impl,
+                                                String address,
+                                                int port,
+                                                Object context,
+                                                ClassLoader loader) {
+        return new RemoteProxy(interfaces, impl, address, port, context, loader);
+    }
+
+    ... // some factory methods are omitted
+
+    /**
+     * Look up and retrives a proxy to an object from the server.
+     *
+     * @return the proxy instance
+     */
+    public Object getInstance() {
+        if (m_proxy != null) {
+            return m_proxy;
+        }
+        if (m_loader == null) {
+            m_loader = Thread.currentThread().getContextClassLoader();
+        }
+        try {
+            m_socket = new Socket(InetAddress.getByName(m_address), m_port);
+            m_socket.setTcpNoDelay(true);
+            m_out = new ObjectOutputStream(m_socket.getOutputStream());
+            m_in = new ObjectInputStream(m_socket.getInputStream());
+        } catch (Exception e) {
+            throw new WrappedRuntimeException(e);
+        }
+        if (m_handle == null) {
+            // is a client side proxy
+            if (m_targetInterfaceNames == null) {
+                throw new IllegalStateException("interface class name can not be null");
+            }
+            if (m_targetImplName == null) {
+                throw new IllegalStateException("implementation class name can not be null");
+            }
+            try {
+                // create a new instance on the server and get the handle to it in return
+                m_out.write(Command.CREATE);
+                m_out.writeObject(m_targetImplName);
+                m_out.flush();
+                m_handle = (String) m_in.readObject();
+                m_targetInterfaces = new Class[m_targetInterfaceNames.length];
+                for (int i = 0; i < m_targetInterfaceNames.length; i++) {
+                    try {
+                        m_targetInterfaces[i] = Class.forName(
+                            m_targetInterfaceNames[i], false, m_loader
+                        );
+                    } catch (ClassNotFoundException e) {
+                        throw new WrappedRuntimeException(e);
+                    }
+                }
+            } catch (Exception e) {
+                throw new WrappedRuntimeException(e);
+            }
+        }
+
+        // create and return a regular Java Dynamic Proxy
+        m_proxy = Proxy.newProxyInstance(m_loader, m_targetInterfaces, this);
+        return m_proxy;
+    }
+
+    /**
+     * This method is invoked automatically by the proxy. Should not be called directly.
+     *
+     * @param proxy  the proxy instance that the method was invoked on
+     * @param method the Method instance corresponding to the interface method invoked 
+     *               on the proxy instance.
+     * @param args   an array of objects containing the values of the arguments passed 
+     *               in the method invocation on the proxy instance.
+     * @return the value to return from the method invocation on the proxy instance.
+     */
+    public Object invoke(Object proxy, Method method, Object[] args) {
+        try {
+            m_out.write(Command.INVOKE);
+            m_out.writeObject(m_context);
+            m_out.writeObject(m_handle);
+            m_out.writeObject(method.getName());
+            m_out.writeObject(method.getParameterTypes());
+            m_out.writeObject(args);
+            m_out.flush();
+            final Object response = m_in.readObject();
+            if (response instanceof Exception) {
+                throw (Exception) response;
+            }
+            return response;
+        } catch (Exception e) {
+            throw new WrappedRuntimeException(e);
+        }
+    }
+
+    /**
+     * Closes the proxy and the connection to the server.
+     */
+    public void close() {
+        try {
+            m_out.write(Command.CLOSE);
+            m_out.flush();
+            m_out.close();
+            m_in.close();
+            m_socket.close();
+        } catch (IOException e) {
+            throw new WrappedRuntimeException(e);
+        }
+    }
+}
+</pre>
+
+That's all there is to it. 
+
+Ok, perhaps not as powerful and flexible as <a href="http://www.springframework.org/docs/reference/remoting.html">Spring Remoting</a>, <a href="http://java.sun.com/products/ejb/">EJBs</a>, <a href="http://java.sun.com/javase/technologies/core/basic/rmi/index.jsp">RMI</a> or <a href="http://terracotta.org">Terracotta's Network-Attached Memory</a>. 
+
+But plain sockets and DPs are not so bad either. Or is it just me that's being a bit sentimental? At least it was pretty cool stuff back in 2001 :-)
+
+If you want to take a look at the code or are thinking of using it then you can check it out  using this command (if you don't have darcs installed you can get it <a href="http://darcs.net/">here</a>):
+
+<code>darcs get http://jonasboner.com/darcs/remoteproxy</code>
+
+Happy hacking. 
+</pre>

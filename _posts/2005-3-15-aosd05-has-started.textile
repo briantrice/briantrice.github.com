@@ -1,0 +1,20 @@
+--- 
+wordpress_id: 33
+layout: post
+title: AOSD.05 has started
+wordpress_url: http://jonasboner.com/?p=33
+---
+<h1>
+AOSD.05 has started
+</h1>
+<a href="http://aosd.net/2005/index.php">AOSD 2005</a> has just started. I am excited, and have high expectations since last years conference was a real hit, and this year we have a separate industry track with many interesting talks coming up, f.e. Grady Booch is doing a keynote.  
+
+I will be giving a talk on AspectWerkz 2 and the road to AspectJ 5 at the AOSD 2005 conference hosted at the Intercontinental hotel in Chicago.
+
+If you are in the area, please drop in and say hi.
+
+If you are interested you can read the abstract etc. <a href="http://aosd.net/2005/industry/talk3.php">here</a> 
+
+For those who can't make it, I will make the slides available online after the conference.
+
+Hope to see you there...

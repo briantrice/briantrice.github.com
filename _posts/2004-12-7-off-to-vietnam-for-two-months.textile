@@ -1,0 +1,18 @@
+--- 
+wordpress_id: 28
+layout: post
+title: Off to Vietnam for two months
+wordpress_url: http://jonasboner.com/?p=28
+---
+<h1>
+Off to Vietnam for two months
+</h1>
+<p/>
+I am travelling with with my wife and my one year old son in Vietnam for a couple of months. 
+<p/>
+It's been a pretty hectic fall so I am looking forward resting my mind for a while. Although I am pretty sure that travelling in Vietnam with a little kid is not all relaxing (but for sure interesting :-) ). 
+<p/>
+See you in a while.
+<p/>
+/Jonas
+<p/>

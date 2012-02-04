@@ -1,0 +1,16 @@
+--- 
+wordpress_id: 147
+layout: post
+title: "Interviewed by Xebia: Part 1"
+wordpress_url: http://jonasboner.com/2007/09/18/terracotta-podcast-part-1/
+---
+<h1>
+Interviewed by Xebia: Part 1
+</h1>
+<a href="http://xebia.com/">Xebia</a> did an interview with me some months ago in which we discuss things like <a href="http://terracotta.org/">Terracotta</a>, scale-out and high-availability for Java, JVM-level clustering, network-attached memory, distributed and concurrent programming, JEE best practices etc. 
+
+The interview is split up in two parts, the first one being more of an overview while the second one discusses things in more detail.
+
+You can find the first part <a href="http://podcast.xebia.com/Xebia_Audio_and_Video_Podcast/Entries/2007/9/19_Episode_11_-_Terracotta_Part_1.html">here</a>. 
+
+Second part will be published in 2 weeks.
