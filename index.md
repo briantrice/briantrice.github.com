@@ -8,7 +8,7 @@ title: Home
 
 <img class='inset left' title='Mark Reid' src='/images/jonas_bw_small.JPG' alt='Photo of Jonas' />
 
-I'm Jonas Bonér, an entrepreneur, programmer, teacher, mentor, speaker and writer. I'm also a husband, a proud dad to two boys, a passionate skier (alpine, telemark and snowboard) and jazz saxophone player (tenor, alto and soprano).
+I'm Jonas Bonér, an entrepreneur, programmer, teacher, mentor, speaker and writer. I'm also a husband, a proud dad to two boys, a book addict, a passionate skier (alpine, telemark and snowboard) and jazz saxophone player (tenor, alto and soprano).
 
 <div class='section'>
 <h1 id='work'>Work</h1>
