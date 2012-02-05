@@ -67,7 +67,7 @@ JB :
   comments :
     provider : disqus
     disqus :
-      short_name : jboner
+      short_name : jonasboner
    
   # Settings for analytics helper
   # Set 'provider' to the analytics provider you want to use.
