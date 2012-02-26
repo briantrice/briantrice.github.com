@@ -6,10 +6,9 @@ title: Home
 
 <h1 id='welcome'>Welcome</h1>
 
-<img class='inset left' title='Mark Reid' src='/images/jonas_bw_small.JPG' alt='Photo of Jonas' />
+<!--<img class='inset left' title='Mark Reid' src='/images/jonas_bw_small.JPG' alt='Photo of Jonas' />-->
 
-I'm Jonas Bonér, an entrepreneur, programmer, teacher, mentor, speaker and writer. I'm also a husband, a proud dad to two boys, a book addict, a passionate skier (alpine, telemark and snowboard) and jazz saxophone player (tenor, alto and soprano).
-
+<!--
 <div class='section'>
 <h1 id='work'>Work</h1>
 I'm the co-founder and CTO of <a href="http://typesafe.com">Typesafe</a> building a software stack for scalable systems, consisting of: 
@@ -36,8 +35,9 @@ I am currently writing for:
   <li>The <a href="http://blog.typesafe.com/">Typesafe Company Blog</a></li>
 </ul>
 </div>
+-->
 
 <div class='section'>
 <h1 id='twitter'>Twitter</h1>
-<p>I tweet more than I should at <a href='http://twitter.com/jboner'>twitter.com/jboner</a> (only tech)</p>
+<p>I tweet more than I should at <a href='http://twitter.com/briantrice'>@briantrice</a> (mostly tech)</p>
 </div>
